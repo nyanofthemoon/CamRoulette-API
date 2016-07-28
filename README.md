@@ -23,6 +23,26 @@
 
 # Requests And Responses
 
+### Login User
+
+###### Request
+```js
+socket.emit("login", {
+})
+```
+###### Response
+```js
+socket.on("query", callback)
+```
+```json
+{
+  "type": "user",
+  "data": {
+    "username": "nyan"
+  }
+}
+```
+
 ### Query User
 
 ###### Request
