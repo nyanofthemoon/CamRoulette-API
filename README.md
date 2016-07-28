@@ -38,7 +38,7 @@ socket.on("query", callback)
 {
   "type": "user",
   "data": {
-    "username": "nyan"
+    "email": "nyan@fake.net"
   }
 }
 ```
@@ -59,7 +59,7 @@ socket.on("query", callback)
 {
   "type": "user",
   "data": {
-    "username": "nyan"
+    "email": "nyan@fake.net"
   }
 }
 ```
