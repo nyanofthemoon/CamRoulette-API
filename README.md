@@ -12,8 +12,8 @@
 
 * Get all user data ```HGETALL user```
 * Get all user ids ```HKEYS user```
-* Get one user ```HGET user <id>```
-* Delete one user ```HDEL user <id>```
+* Get one user ```HGET user <email>```
+* Delete one user ```HDEL user <email>```
 * Delete all users ```DEL user```
 
 ### Deployment

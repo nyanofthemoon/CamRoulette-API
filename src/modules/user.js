@@ -8,24 +8,31 @@ class User {
     this.logger = new Logger('USER', config);
     this.socket = null;
     this.source = null;
-    //@TODO Format from data passed using facebook auth
     this.data = {
-      email: null
+      email:           null,
+      gender:          null,
+      firstName:       null,
+      lastName:        null,
+      facebookProfile: null,
+      facebookPicture: null,
+      locale:          null,
+      timezone:        null,
+      contacts:        []
     };
   }
 
   initialize(socket, source, data) {
     this.socket = socket;
     this.source = source;
-    let that    = this;
+    let that = this;
     Object.keys(data).forEach(function (key) {
       that.data[key] = data[key];
     });
   }
 
   // Returns a promise
-  static findOne(source, id) {
-    return source.hgetAsync('user', id);
+  static findOne(source, uid) {
+    return source.hgetAsync('user', uid);
   }
 
   // Returns a promise
@@ -49,9 +56,7 @@ class User {
   query() {
     var struct = {
       'type': 'user',
-      'data': {
-        'email': this.getEmail()
-      }
+      'data': this.data
     };
 
     return struct;

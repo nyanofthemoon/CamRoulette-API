@@ -14,30 +14,37 @@ class Api {
     this.workers = {};
     this.data    = {
       sessions: {},
-      users:    {}
+      users: {}
     };
   }
 
   static initialize(io, config) {
-    return new Promise(function(resolve, reject) {
-      let api     = new Api(config);
+    return new Promise(function (resolve, reject) {
+      let api = new Api(config);
       api.sockets = io;
       new Redis(config).initialize()
-        .then(function(clientOne) {
+        .then(function (clientOne) {
 
           // Subscribe to Events
           clientOne.subscribe('system');
 
           // Handle Event Messages
-          clientOne.on('message', function(channel, message) {
+          clientOne.on('message', function (channel, message) {
             try {
               message = JSON.parse(message);
               switch (channel) {
                 case 'system':
-                  switch(message.type) {
+                  switch (message.type) {
                     case 'save-users':
                       for (let key in api.data.users) {
                         api.data.users[key].save();
+                      }
+                      break;
+                    case 'disconnect-users':
+                      for (let key in api.data.users) {
+                        let userSocket = api.data.users[key].socket;
+                        userSocket.disconnect(true);
+                        api.removeSession(userSocket);
                       }
                       break;
                     default:
@@ -57,9 +64,9 @@ class Api {
             .then(function (clientTwo) {
               api.source = clientTwo;
               User.findAll(api.source)
-                .then(function(users) {
+                .then(function (users) {
                   if (users) {
-                    Object.keys(users).forEach(function(key) {
+                    Object.keys(users).forEach(function (key) {
                       let user = new User(config);
                       user.initialize(null, api.source, JSON.parse(users[key]));
                       api.data.users[user.getId()] = user;
@@ -109,7 +116,7 @@ class Api {
     try {
       socket.on('error', function(data) { that.error(data, socket); });
       socket.on('login', function(data) { that.login(data, socket); });
-      socket.on('query', function(data) { that.query(data, socket); });
+      this.logger.verbose('Socket ' + socket.id + ' bound to public events');
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to public events ', e);
     }
@@ -118,7 +125,8 @@ class Api {
   bindSocketToPrivateEvents(socket) {
     var that = this;
     try {
-      //@TODO Authenticated events only.
+      socket.on('query', function(data) { that.query(data, socket); });
+      this.logger.verbose('Socket ' + socket.id + ' bound to private events');
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to private events ', e);
     }
@@ -133,39 +141,48 @@ class Api {
   }
 
   login(data, socket) {
-    let userData = {};
-    let user     = this.getUserById(userData.email);
+    let user = this.getUserById(data.data.email);
     if (!user) {
       user = new User(this.config);
-      //@TODO Query data from Facebook based on token from app authentication to create "new user"
-      userData = {
-        email: 'nyan@fake.com'
-      };
     }
+    let userData = {
+      email: data.data.email,
+      gender: data.data.gender,
+      firstName: data.data.first_name,
+      lastName:data.data.last_name,
+      locale: data.data.locale,
+      timezone: data.data.timezone,
+      facebookProfile: data.data.link,
+      facebookPicture: data.data.picture.url
+    };
     user.initialize(socket, this.source, userData);
     this.addSession(socket, user);
     this.addUser(user);
     this.bindSocketToPrivateEvents(socket);
-    logger.info('User Authenticated: ' + user.getId(), socket.id);
+    this.logger.info('User Authenticated: ' + user.getId(), socket.id);
     socket.emit('query', user.query());
   }
 
   query(data, socket) {
     try {
       let info = null;
-      switch(data.type) {
+      switch (data.type) {
         case 'user':
           info = this.getUserBySocketId(socket.id).query();
           break;
-        default: break;
+        default:
+          break;
       }
-      socket.emit('query', info);
-      this.logger.verbose('[QUERY] ' + data.type);
+      if (info) {
+        socket.emit('query', info);
+        this.logger.verbose('[QUERY] ' + data.type);
+      }
     } catch (e) {
       this.logger.error('[QUERY] ' + JSON.stringify(info) + ' ' + e);
     }
   }
 
-};
+}
+;
 
 module.exports = Api;

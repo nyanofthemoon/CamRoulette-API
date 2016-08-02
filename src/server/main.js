@@ -4,7 +4,7 @@ const CONFIG = require('./../config');
 
 let io = require('socket.io')();
 
-let Api    = require('./../modules/api');
+let Api = require('./../modules/api');
 let logger = new (require('./../modules/logger'))('SERVER', CONFIG);
 
 Api.initialize(io, CONFIG).then(function (api) {
@@ -25,6 +25,6 @@ Api.initialize(io, CONFIG).then(function (api) {
     }
 
   })
-  .catch(function (reason) {
+  .catch(function(reason) {
     logger.error('Api Initialization Failure', reason);
   });
