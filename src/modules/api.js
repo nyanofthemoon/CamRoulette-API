@@ -153,7 +153,7 @@ class Api {
       locale: data.data.locale,
       timezone: data.data.timezone,
       facebookProfile: data.data.link,
-      facebookPicture: data.data.picture.url
+      facebookPicture: data.data.picture.data.url
     };
     user.initialize(socket, this.source, userData);
     this.addSession(socket, user);
