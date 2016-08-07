@@ -10,7 +10,8 @@ class Room {
 
   constructor(config) {
     this.logger = new Logger('ROOM', config)
-    this.data = {
+    this.io = null
+      this.data = {
       name  : null,
       status: STATUS_INACTIVE,
       round : 1
@@ -18,7 +19,7 @@ class Room {
   }
 
   initialize(io, data) {
-    this.io  = io
+    this.io = io
     let that = this
     Object.keys(data).forEach(function (key) {
       that.data[key] = data[key]
@@ -34,10 +35,10 @@ class Room {
   }
 
   getSocketIds() {
-    var room = this.io.nsps['/'].adapter.rooms[this.getName()];
-    if (room && room.sockets) {
+    var socketIds = this.io.nsps['/'].adapter.rooms[this.getName()];
+    if (socketIds && socketIds.sockets) {
       var collection = [];
-      for (var key in room.sockets) {
+      for (var key in socketIds.sockets) {
         collection.push(key);
       }
       return collection;

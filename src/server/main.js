@@ -32,9 +32,10 @@ Api.initialize(io, CONFIG).then(function (api) {
         logger.info('Socket Disconnected', this.id)
         api.removeSession(this)
         if (socket.room) {
-          var room = socket.room
-          io.to(room).emit('leave', socket.id)
-          socket.leave(room)
+          let roomName = socket.room
+          io.to(roomName).emit('leave', socket.id)
+          socket.leave(roomName)
+          let room = api.getRoomByName(roomName)
           api.removeRoom(room)
         }
       })

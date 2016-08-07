@@ -94,8 +94,14 @@ class Api {
     this.data.sessions[socket.id] = user.getId()
   }
 
-  removeRoom(name) {
-    delete(this.data.rooms[name])
+  getRoomByName(name) {
+    return this.data.rooms[name]
+  }
+
+  removeRoom(room) {
+    if (room) {
+      delete(this.data.rooms[room.getName()])
+    }
   }
 
   removeSession(socket) {
@@ -146,7 +152,10 @@ class Api {
     var that = this
     try {
       socket.on('query', function(data) { that.query(data, socket) })
-      socket.on('join', function(name, callback) { that.join(name, socket) })
+      socket.on('join', function(name, callback) {
+        name = 'room_' + socket.id
+        that.join(name, socket, callback)
+      })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
@@ -204,38 +213,44 @@ class Api {
     }
   }
 
-  join(name, socket) {
+  join(name, socket, callback) {
     try {
 
       // Try To Join A Random Room
       // @TODO Fix this later!
 
       let room = this.getRandomRoom();
+      let roomName = name;
       let joined = true;
       if (!room) {
         room = new Room(this.config)
         room.initialize(this.sockets, { name: name })
         joined = false
+      } else {
+        roomName = room.getName()
       }
-      socket.join(name)
-      socket.room = name
+      socket.join(roomName)
+      socket.room = roomName
       if (joined) {
-        this.removeRoom(name)
-        this.logger.info('[JOIN] Joined Room ' + name)
+        this.removeRoom(room)
+        callback(room.getSocketIds())
+        this.logger.info('[JOIN] Joined Room ' + roomName)
       } else {
         this.addRoom(room)
-        this.logger.info('[JOIN] Created Room ' + name)
+        this.logger.info('[JOIN] Created Room ' + roomName)
       }
     } catch (e) {
-      this.logger.error('[JOIN] ' + JSON.stringify(name) + ' ' + e)
+      this.logger.error('[JOIN] ' + JSON.stringify(roomName) + ' ' + e)
     }
   }
 
   exchange(data, socket) {
     try {
       data.from = socket.id
-      var to = io.sockets.connected[data.to]
-      to.emit('exchange', data)
+      var to = this.sockets.sockets.connected[data.to]
+      if (to) {
+        to.emit('exchange', data)
+      }
     } catch (e) {
       this.logger.error('[EXCHANGE] ' + JSON.stringify(info) + ' ' + e)
     }
