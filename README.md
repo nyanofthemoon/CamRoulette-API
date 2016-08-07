@@ -80,12 +80,20 @@ socket.on("query", callback)
 {
   "type": "user",
   "data": {
-    "email": "nyan@fake.net"
+    "email"          : "nyan@fake.net",
+    "gender"         : "female",
+    "firstName"      : "Nyan",
+    "lastName"       : "Cat",
+    "facebookProfile": "https://",
+    "facebookPicture": "https://",
+    "locale"         : "en_US",
+    "timezone"       : -4,
+    "contacts"       : []
   }
 }
 ```
 
-### Join User
+### Join Room
 
 User is ready to start a conversation. Will either join another waiting user in the pool or wait until someone else is ready.
 
@@ -100,5 +108,30 @@ socket.on("exchange", callback)
 ```
 ```json
 {
+}
+```
+
+### Query Room
+
+Query user information from system.
+
+###### Request
+```js
+socket.emit("query", {
+  "name": "room_/#xSQ0nZIViteIAgPgAAAD"
+})
+```
+###### Response
+```js
+socket.on("query", callback)
+```
+```json
+{
+  "type": "room",
+  "data": {
+    "name"  : "room_/#xSQ0nZIViteIAgPgAAAD",
+    "status": "inactive|waiting|active",
+    "round" : 1
+  }
 }
 ```

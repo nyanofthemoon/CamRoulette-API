@@ -201,6 +201,12 @@ class Api {
         case 'user':
           info = this.getUserBySocketId(socket.id).query()
           break
+        case 'room':
+          let room = this.getRoomByName(data.name)
+          if (room) {
+            info = room.query()
+          }
+          break
         default:
           break
       }

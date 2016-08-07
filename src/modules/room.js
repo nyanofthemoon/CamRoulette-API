@@ -47,6 +47,17 @@ class Room {
     }
   }
 
+  query() {
+    // ADD check if user socket.id is authorized to get room info
+
+    var struct = {
+      'type': 'room',
+      'data': this.data
+    }
+
+    return struct
+  }
+
 }
 
 module.exports = Room
