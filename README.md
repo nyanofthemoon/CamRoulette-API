@@ -111,6 +111,16 @@ socket.on("exchange", callback)
 }
 ```
 
+### Leave Room
+
+Will leave last room joined.
+
+###### Request
+```js
+socket.emit("leave", {
+})
+```
+
 ### Query Room
 
 Query user information from system.

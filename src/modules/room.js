@@ -13,10 +13,10 @@ class Room {
     this.io = null
     this.data = {
       name       : null,
-      ageGroup   : null,
-      genderMatch: null,
       status     : STATUS_INACTIVE,
-      round      : 1
+      round      : 1,
+      genderMatch: null,
+      ageGroup   : null
     }
   }
 
@@ -30,6 +30,14 @@ class Room {
 
   getName() {
     return this.data.name
+  }
+
+  getGenderMatch() {
+    return this.data.genderMatch
+  }
+
+  getAgeGroup() {
+    return this.data.ageGroup
   }
 
   getStatus() {

@@ -9,17 +9,18 @@ class User {
     this.socket = null
     this.source = null
     this.data = {
-      email:           null,
-      gender:          null,
-      birthday:        null,
-      firstName:       null,
-      lastName:        null,
+      email          : null,
+      gender         : null,
+      birthday       : null,
+      firstName      : null,
+      orientation    : null,
+      lastName       : null,
       facebookProfile: null,
       facebookPicture: null,
-      locale:          null,
-      timezone:        null,
-      wantedGender:    null,
-      contacts:        []
+      locale         : null,
+      timezone       : null,
+      wantedGender   : null,
+      contacts       : []
     }
   }
 
@@ -79,10 +80,18 @@ class User {
   }
 
   getWantedGender() {
-    if ('M' === this.data.gender) {
-      return 'F'
+    if ('gay' === this.data.orientation) {
+      if ('M' === this.data.gender) {
+        return 'MM'
+      } else {
+        return 'FF'
+      }
     } else {
-      return 'M'
+      if ('M' === this.data.gender) {
+        return 'F'
+      } else {
+        return 'M'
+      }
     }
   }
 

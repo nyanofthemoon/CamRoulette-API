@@ -33,10 +33,7 @@ Api.initialize(io, CONFIG).then(function (api) {
         api.removeSession(this)
         if (socket.room) {
           let roomName = socket.room
-          io.to(roomName).emit('leave', socket.id)
-          socket.leave(roomName)
-          let room = api.getRoomByName(roomName)
-          api.removeRoom(room)
+          api.leave(roomName)
         }
       })
     })
