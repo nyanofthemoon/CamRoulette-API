@@ -2,7 +2,7 @@
 
 let Logger = require('./logger')
 let Redis  = require('./redis')
-let Room   = require('./Room')
+let Room   = require('./room')
 let User   = require('./user')
 
 class Api {
