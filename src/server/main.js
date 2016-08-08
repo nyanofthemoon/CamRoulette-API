@@ -28,9 +28,9 @@ Api.initialize(io, CONFIG).then(function (api) {
     io.sockets.on('connection', function (socket) {
       logger.info('Socket Connected', socket.id)
       api.bindSocketToPublicEvents(socket)
-      if ('development' === CONFIG.environment.name) {
-        api.bindSocketToPrivateEvents(socket)
-      }
+      //if ('development' === CONFIG.environment.name) {
+      //  api.bindSocketToPrivateEvents(socket)
+      //}
       socket.on('disconnect', function () {
         logger.info('Socket Disconnected', this.id)
         api.removeSession(this)
