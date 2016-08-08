@@ -6,6 +6,12 @@ let server
 if ('development' === CONFIG.environment.name) {
   var express = require('express')
   var app = express()
+
+  app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+  });
+
   app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/index.html');
   });
