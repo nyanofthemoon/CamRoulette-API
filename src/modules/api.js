@@ -192,7 +192,7 @@ class Api {
     try {
       socket.on('query', function(data) { that.query(data, socket) })
       socket.on('join', function(name, callback) {
-        name = 'room_' + socket.id
+        name = 'room_' + socket.id + '/' + Math.floor((Math.random() * 999999)
         that.join(name, socket, callback)
       })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
