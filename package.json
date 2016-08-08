@@ -6,7 +6,7 @@
     "server": "nodemon --watch src src/server/main.js",
     "workers": "nodemon --watch src src/workers/main.js",
     "dev": "parallelshell 'npm run server' 'npm run workers'",
-    "start": "parallelshell 'pm2 start src/server/main.js' 'pm2 start src/workers/main.js'",
+    "start": "pm2 --no-daemon start src/server/main.js && pm2 --no-daemon start src/workers/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
