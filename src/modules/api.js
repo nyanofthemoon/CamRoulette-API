@@ -278,7 +278,7 @@ class Api {
       //if (user) {
         let ageGroup = '18-29' //user.getAgeRange()
         let genderMatch = 'M-M' //user.getWantedGender()
-        let room = getRandomRoomByQuery(genderMatch, ageGroup)
+        let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name;
         let joined = true;
         if (!room) {
