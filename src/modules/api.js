@@ -153,7 +153,7 @@ class Api {
     let key  = keys.length * Math.random() << 0;
     return {
       'key' : key,
-      'name': this.data.queue[genderMatch][ageGroup][keys[key]]
+      'room': this.data.queue[genderMatch][ageGroup][keys[key]]
     }
   }
 
@@ -281,7 +281,8 @@ class Api {
         let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name;
         let joined = true;
-        if (!room) {
+        let roomKey;
+        if (!room || !room.room) {
           room = new Room(this.config)
           room.initialize(this.sockets, {
             name       : name,
@@ -290,13 +291,15 @@ class Api {
           })
           joined = false
         } else {
+          roomKey = room.key
+          room = room.room
           roomName = room.getName()
         }
         socket.join(roomName)
         socket.room = roomName
         //room.addUser(user)
         if (joined) {
-          this.removeRoomByQuery(genderMatch, ageGroup, room)
+          this.removeRoomByQuery(genderMatch, ageGroup, roomKey)
           callback(room.getSocketIds())
           this.logger.info('[JOIN] Joined Room ' + roomName)
         } else {
