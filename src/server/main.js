@@ -7,7 +7,6 @@ if ('development' === CONFIG.environment.name) {
   var express = require('express')
   var app = express()
   app.get('/', function(req, res){
-    console.log('ffsdf')
     res.sendFile(__dirname + '/public/index.html');
   });
   var http = require('http')
