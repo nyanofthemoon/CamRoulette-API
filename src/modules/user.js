@@ -51,6 +51,10 @@ class User {
     return this.data.email
   }
 
+  getFirstName() {
+    return this.data.firstName
+  }
+
   getSocketId() {
     return this.socket.id
   }
@@ -87,7 +91,6 @@ class User {
       'type': 'user',
       'data': this.data
     }
-
     return struct
   }
 

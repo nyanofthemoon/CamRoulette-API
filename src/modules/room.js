@@ -11,7 +11,6 @@ class Room {
   constructor(config) {
     this.logger = new Logger('ROOM', config)
     this.io = null
-    this.socketIds = []
     this.data = {
       name       : null,
       ageGroup   : null,
@@ -42,10 +41,6 @@ class Room {
       return true
     }
     return false
-  }
-
-  addUser(user) {
-    this.socketIds.push(user.getSocketId())
   }
 
   getSocketIds() {
