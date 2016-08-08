@@ -9,14 +9,15 @@ if ('development' === CONFIG.environment.name) {
   app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/index.html');
   });
-  var http = require('http')
-  server = http.createServer(app)
+  server = app.listen(CONFIG.environment.port)
 } else {
   var https = require('https')
   server = https.createServer({})
 }
-let io = require('socket.io')(server)
-io.set('transports', ['websocket']);
+let io = require('socket.io').listen(server)
+
+
+
 
 let Api = require('./../modules/api')
 let logger = new (require('./../modules/logger'))('SERVER', CONFIG)
@@ -41,12 +42,14 @@ Api.initialize(io, CONFIG).then(function (api) {
       })
     })
 
+  /*
     try {
       server.listen(CONFIG.environment.port)
       logger.success('Listening on port ' + CONFIG.environment.port)
     } catch (e) {
       logger.error('Not listening on port ' + CONFIG.environment.port, e)
     }
+    */
 
   })
   .catch(function(reason) {
