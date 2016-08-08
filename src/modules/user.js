@@ -79,14 +79,11 @@ class User {
   }
 
   getWantedGender() {
-    if (!this.data.wantedGender) {
-      if ('M' === this.data.gender) {
-        return 'F'
-      } else {
-        return 'M'
-      }
+    if ('M' === this.data.gender) {
+      return 'F'
+    } else {
+      return 'M'
     }
-    return this.data.wantedGender;
   }
 
   canRead(room) {

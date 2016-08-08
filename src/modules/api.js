@@ -295,7 +295,7 @@ class Api {
         let joined = true
         let roomKey
         if (!room || !room.room) {
-          genderMatch = user.getGednder()
+          genderMatch = user.getGender()
           room = new Room(this.config)
           room.initialize(this.sockets, {
             name       : name,
