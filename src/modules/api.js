@@ -270,12 +270,12 @@ class Api {
 
   join(name, socket, callback) {
     try {
-      let user = this.getUserBySocketId(socket.id)
+      //let user = this.getUserBySocketId(socket.id)
 
 
-      this.logger.info('[JOIN] TRYING ' + JSON.stringify(user))
+      //this.logger.info('[JOIN] TRYING ' + JSON.stringify(user))
 
-      if (user) {
+      //if (user) {
         let ageGroup = '18-29' //user.getAgeRange()
         let genderMatch = 'M-M' //user.getWantedGender()
         let room = getRandomRoomByQuery(genderMatch, ageGroup)
@@ -294,7 +294,7 @@ class Api {
         }
         socket.join(roomName)
         socket.room = roomName
-        room.addUser(user)
+        //room.addUser(user)
         if (joined) {
           this.removeRoomByQuery(genderMatch, ageGroup, room)
           callback(room.getSocketIds())
@@ -304,7 +304,7 @@ class Api {
           this.addRoomByQuery(genderMatch, ageGroup, room)
           this.logger.info('[JOIN] Created Room ' + roomName)
         }
-      }
+      //}
     } catch (e) {
       this.logger.error('[JOIN] ' + JSON.stringify(roomName) + ' ' + e)
     }
