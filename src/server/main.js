@@ -16,7 +16,7 @@ if ('development' === CONFIG.environment.name) {
   server = https.createServer({})
 }
 let io = require('socket.io')(server)
-io.set('transports', ['websocket']);
+//io.set('transports', ['websocket']);
 
 let Api = require('./../modules/api')
 let logger = new (require('./../modules/logger'))('SERVER', CONFIG)
