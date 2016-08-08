@@ -75,9 +75,10 @@ class User {
   }
 
   getWantedGender() {
-    let check = this.data.gender + '-' + this.data.wantedGender
-    if ('F-M' === check) {
-      check = 'M-F'
+    if ('M' === this.data.gender) {
+      return 'F'
+    } else {
+      return 'M'
     }
     return check;
   }

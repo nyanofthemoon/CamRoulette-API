@@ -18,17 +18,22 @@ class Api {
       users   : {},
       rooms   : {},
       queue   : {
-        'M-M': {
+        'M': {
           '18-29': {},
           '30-49': {},
           '50-65': {}
         },
-        'F-F': {
+        'MM': {
           '18-29': {},
           '30-49': {},
           '50-65': {}
         },
-        'M-F': {
+        'F': {
+          '18-29': {},
+          '30-49': {},
+          '50-65': {}
+        },
+        'FF': {
           '18-29': {},
           '30-49': {},
           '50-65': {}
@@ -243,7 +248,7 @@ class Api {
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
       socket.emit('query', user.query())
-      this.logger.info('[LOGIN] ' + user.getFirstName() + '@' + user.getSocketId() + ' ' + user.getWantedGender() + ':' + user.getAgeRange(), socket.id)
+      this.logger.info('[LOGIN] ' + user.getFirstName() + '@' + user.getSocketId() + ' looking for ' + user.getWantedGender() + ':' + user.getAgeRange(), socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
     }
