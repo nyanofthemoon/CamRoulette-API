@@ -6,12 +6,10 @@ let server
 if ('development' === CONFIG.environment.name) {
   var express = require('express')
   var app = express()
-
   app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     next();
   });
-
   app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/index.html');
   });
@@ -22,7 +20,6 @@ if ('development' === CONFIG.environment.name) {
   server = https.createServer({})
 }
 let io = require('socket.io')(server)
-//io.set('transports', ['websocket']);
 
 let Api = require('./../modules/api')
 let logger = new (require('./../modules/logger'))('SERVER', CONFIG)

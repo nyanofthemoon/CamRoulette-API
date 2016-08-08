@@ -299,6 +299,31 @@ class Api {
           this.addRoomByQuery(genderMatch, ageGroup, room)
           this.logger.info('[JOIN] Created Room ' + roomName)
         }
+      } else {
+        // @TEMPORARY
+        if ('development' === this.config.environment.name) {
+          let room = getRandomRoom()
+          let roomName = name;
+          let joined = true;
+          if (!room) {
+            room = new Room(this.config)
+            room.initialize(this.sockets, { name : name })
+            joined = false
+          } else {
+            roomName = room.getName()
+          }
+          socket.join(roomName)
+          socket.room = roomName
+          if (joined) {
+            this.removeRoom(room)
+            callback(room.getSocketIds())
+            this.logger.info('[WEB JOIN] Joined Room ' + roomName)
+          } else {
+            this.addRoom(room)
+            this.logger.info('[WEB JOIN] Created Room ' + roomName)
+          }
+          //@TEMPORARY
+        }
       }
     } catch (e) {
       this.logger.error('[JOIN] ' + JSON.stringify(roomName) + ' ' + e)
