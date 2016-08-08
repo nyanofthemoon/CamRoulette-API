@@ -16,7 +16,23 @@ class Api {
     this.data    = {
       sessions: {},
       users   : {},
-      rooms   : {
+      rooms   : {},
+      queue   : {
+        'M-M': {
+          '18-29': {},
+          '30-49': {},
+          '50-65': {}
+        },
+        'F-F': {
+          '18-29': {},
+          '30-49': {},
+          '50-65': {}
+        },
+        'M-F': {
+          '18-29': {},
+          '30-49': {},
+          '50-65': {}
+        }
       }
     }
   }
@@ -124,6 +140,23 @@ class Api {
     return this.data.rooms[name] || null;
   }
 
+  addRoomByQuery(genderMatch, ageGroup, room) {
+    this.data.queue[genderMatch][ageGroup][key] = room
+  }
+
+  removeRoomByQuery(genderMatch, ageGroup, key) {
+    delete(this.data.queue[genderMatch][ageGroup][key])
+  }
+
+  getRandomRoomByQuery(genderMatch, ageGroup) {
+    let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
+    let key  = keys.length * Math.random() << 0;
+    return {
+      'key' : key,
+      'name': this.data.queue[genderMatch][ageGroup][keys[key]]
+    }
+  }
+
   getRandomRoom() {
     var keys = Object.keys(this.data.rooms)
     return this.data.rooms[keys[keys.length * Math.random() << 0]];
@@ -176,13 +209,23 @@ class Api {
     if (!user) {
       user = new User(this.config)
     }
+
+    let gender = 'M';
+    let wantedGender = 'F'
+    if ('female' === data.data.gender) {
+      gender = 'F'
+      wantedGender = 'M'
+    }
+
     let userData = {
-      email: data.data.email,
-      gender: data.data.gender,
-      firstName: data.data.first_name,
-      lastName:data.data.last_name,
-      locale: data.data.locale,
-      timezone: data.data.timezone,
+      email          : data.data.email,
+      gender         : gender,
+      wantedGender   : wantedGender,
+      birthday       : data.data.birthday,
+      firstName      : data.data.first_name,
+      lastName       : data.data.last_name,
+      locale         : data.data.locale,
+      timezone       : data.data.timezone,
       facebookProfile: data.data.link,
       facebookPicture: data.data.picture.data.url
     }
@@ -202,9 +245,14 @@ class Api {
           info = this.getUserBySocketId(socket.id).query()
           break
         case 'room':
-          let room = this.getRoomByName(data.name)
-          if (room) {
-            info = room.query()
+          let user = this.getUserBySocketId(socket.id)
+          if (user) {
+            let room = this.getRoomByName(data.name)
+            if (room && room.hasUser(user)) {
+              info = room.query()
+            } else {
+              this.logger.error('[QUERY] ' + socket.id + ' does not have read access over ' + data.name)
+            }
           }
           break
         default:
@@ -221,29 +269,36 @@ class Api {
 
   join(name, socket, callback) {
     try {
-
-      // Try To Join A Random Room
-      // @TODO Fix this later!
-
-      let room = this.getRandomRoom();
-      let roomName = name;
-      let joined = true;
-      if (!room) {
-        room = new Room(this.config)
-        room.initialize(this.sockets, { name: name })
-        joined = false
-      } else {
-        roomName = room.getName()
-      }
-      socket.join(roomName)
-      socket.room = roomName
-      if (joined) {
-        this.removeRoom(room)
-        callback(room.getSocketIds())
-        this.logger.info('[JOIN] Joined Room ' + roomName)
-      } else {
-        this.addRoom(room)
-        this.logger.info('[JOIN] Created Room ' + roomName)
+      let user = this.getUserBySocketId(socket.id)
+      if (user) {
+        let ageGroup = '18-29' //user.getAgeRange()
+        let genderMatch = 'M-M' //user.getWantedGender()
+        let room = getRandomRoomByQuery(genderMatch, ageGroup)
+        let roomName = name;
+        let joined = true;
+        if (!room) {
+          room = new Room(this.config)
+          room.initialize(this.sockets, {
+            name       : name,
+            ageGroup   : ageGroup,
+            genderMatch: genderMatch
+          })
+          joined = false
+        } else {
+          roomName = room.getName()
+        }
+        socket.join(roomName)
+        socket.room = roomName
+        room.addUser(user)
+        if (joined) {
+          this.removeRoomByQuery(genderMatch, ageGroup, room)
+          callback(room.getSocketIds())
+          this.logger.info('[JOIN] Joined Room ' + roomName)
+        } else {
+          this.addRoom(room)
+          this.addRoomByQuery(genderMatch, ageGroup, room)
+          this.logger.info('[JOIN] Created Room ' + roomName)
+        }
       }
     } catch (e) {
       this.logger.error('[JOIN] ' + JSON.stringify(roomName) + ' ' + e)

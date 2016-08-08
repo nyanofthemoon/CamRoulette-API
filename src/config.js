@@ -3,8 +3,8 @@
 module.exports = {
 
   environment: {
-    name: process.env.NODE_ENV || 'development',
-    port: process.env.PORT || 8888,
+    name: process.env.NODE_ENV   || 'development',
+    port: process.env.PORT       || 8888,
     verbose: process.env.VERBOSE || true
   },
 

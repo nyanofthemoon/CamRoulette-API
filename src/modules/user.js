@@ -11,12 +11,14 @@ class User {
     this.data = {
       email:           null,
       gender:          null,
+      birthday:        null,
       firstName:       null,
       lastName:        null,
       facebookProfile: null,
       facebookPicture: null,
       locale:          null,
       timezone:        null,
+      wantedGender:    null,
       contacts:        []
     }
   }
@@ -49,8 +51,31 @@ class User {
     return this.data.email
   }
 
+  getSocketId() {
+    return this.socket.id
+  }
+
   getEmail() {
     return this.data.email
+  }
+
+  getAgeRange() {
+    let age = new Date().getFullYear() - new Date(this.data.birthday).getFullYear();
+    if (age < 30) {
+      return '18-29'
+    } else if (age < 50) {
+      return '30-49'
+    } else {
+      return '50-65'
+    }
+  }
+
+  getWantedGender() {
+    return this.data.gender + '-' + this.data.wantedGender
+  }
+
+  canRead(room) {
+    return room.hasUser(this)
   }
 
   query() {

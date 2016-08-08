@@ -11,10 +11,13 @@ class Room {
   constructor(config) {
     this.logger = new Logger('ROOM', config)
     this.io = null
-      this.data = {
-      name  : null,
-      status: STATUS_INACTIVE,
-      round : 1
+    this.socketIds = []
+    this.data = {
+      name       : null,
+      ageGroup   : null,
+      genderMatch: null,
+      status     : STATUS_INACTIVE,
+      round      : 1
     }
   }
 
@@ -34,6 +37,17 @@ class Room {
     return this.data.status
   }
 
+  hasUser(user) {
+    if (this.socketIds.indexOf(user.getSocketId()) != -1) {
+      return true
+    }
+    return false
+  }
+
+  addUser(user) {
+    this.socketIds.push(user.getSocketId())
+  }
+
   getSocketIds() {
     var socketIds = this.io.nsps['/'].adapter.rooms[this.getName()];
     if (socketIds && socketIds.sockets) {
@@ -48,13 +62,10 @@ class Room {
   }
 
   query() {
-    // ADD check if user socket.id is authorized to get room info
-
     var struct = {
       'type': 'room',
       'data': this.data
     }
-
     return struct
   }
 
