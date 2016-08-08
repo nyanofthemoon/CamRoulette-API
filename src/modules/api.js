@@ -302,7 +302,7 @@ class Api {
       } else {
         // @TEMPORARY
         if ('development' === this.config.environment.name) {
-          let room = getRandomRoom()
+          let room = this.getRandomRoom()
           let roomName = name;
           let joined = true;
           if (!room) {
