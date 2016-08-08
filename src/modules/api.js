@@ -295,6 +295,7 @@ class Api {
         let joined = true
         let roomKey
         if (!room || !room.room) {
+          genderMatch = user.getGednder()
           room = new Room(this.config)
           room.initialize(this.sockets, {
             name       : name,
@@ -310,9 +311,9 @@ class Api {
         socket.join(roomName)
         socket.room = roomName
         if (joined) {
-          callback(room.getSocketIds())
           this.removeRoomByQuery(genderMatch, ageGroup, roomKey)
           this.logger.info('[JOIN] Joined Room ' + roomName)
+          callback(room.getSocketIds())
         } else {
           this.addRoom(room)
           this.addRoomByQuery(genderMatch, ageGroup, room)

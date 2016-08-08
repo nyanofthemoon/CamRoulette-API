@@ -74,13 +74,19 @@ class User {
     }
   }
 
+  getGender() {
+    return this.data.gender
+  }
+
   getWantedGender() {
-    if ('M' === this.data.gender) {
-      return 'F'
-    } else {
-      return 'M'
+    if (!this.data.wantedGender) {
+      if ('M' === this.data.gender) {
+        return 'F'
+      } else {
+        return 'M'
+      }
     }
-    return check;
+    return this.data.wantedGender;
   }
 
   canRead(room) {
