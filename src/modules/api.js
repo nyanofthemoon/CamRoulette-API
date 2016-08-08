@@ -272,7 +272,7 @@ class Api {
     try {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-        let ageGroup = '30-45' //user.getAgeRange()
+        let ageGroup = '30-49' //user.getAgeRange()
         let genderMatch = 'M-F' //user.getWantedGender()
         let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name;
