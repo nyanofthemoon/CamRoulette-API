@@ -71,7 +71,11 @@ class User {
   }
 
   getWantedGender() {
-    return this.data.gender + '-' + this.data.wantedGender
+    let check = this.data.gender + '-' + this.data.wantedGender
+    if ('F-M' === check) {
+      check = 'M-F'
+    }
+    return check;
   }
 
   canRead(room) {

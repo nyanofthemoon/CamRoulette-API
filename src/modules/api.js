@@ -271,13 +271,9 @@ class Api {
   join(name, socket, callback) {
     try {
       let user = this.getUserBySocketId(socket.id)
-
-
-      //this.logger.info('[JOIN] TRYING ' + JSON.stringify(user))
-
       if (user) {
-        let ageGroup = '18-29' //user.getAgeRange()
-        let genderMatch = 'M-M' //user.getWantedGender()
+        let ageGroup = '30-45' //user.getAgeRange()
+        let genderMatch = 'M-F' //user.getWantedGender()
         let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name;
         let joined = true;
