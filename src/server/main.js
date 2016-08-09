@@ -26,15 +26,21 @@ let logger = new (require('./../modules/logger'))('SERVER', CONFIG)
 
 Api.initialize(io, CONFIG).then(function (api) {
     io.sockets.on('connection', function (socket) {
-      logger.info('Socket Connected', socket.id)
-      api.bindSocketToPublicEvents(socket)
-      socket.on('disconnect', function () {
-        logger.info('Socket Disconnected', this.id)
-        api.removeSession(this)
-        if (socket.room) {
-          api.leave(socket)
-        }
-      })
+      if (socket.handshake.query && socket.handshake.query.token && CONFIG.application.secrets.indexOf(socket.handshake.query.token) != -1) {
+        logger.info('Socket Connected', socket.id)
+        api.bindSocketToPublicEvents(socket)
+        socket.on('disconnect', function () {
+          logger.info('Socket Disconnected', this.id)
+          api.removeSession(this)
+          if (socket.room) {
+            api.leave(socket)
+          }
+        })
+      } else {
+        logger.info('Socket Not Connected - Wrong Application Token', socket.id)
+        socket.emit('upgrade')
+        socket.disconnect(true)
+      }
     })
 
     try {
