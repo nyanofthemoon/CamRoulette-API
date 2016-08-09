@@ -343,6 +343,7 @@ class Api {
           case 'video':
             roomName = data.name
             room = this.getRoomByName(roomName)
+            console.log('*** IN HERE')
             if (room) {
               socket.join(roomName)
               socket.room = roomName
