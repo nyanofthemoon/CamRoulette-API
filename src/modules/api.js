@@ -371,9 +371,9 @@ class Api {
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
-              this.runTimer(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
+              this.runTimer(room)
             } else {
               this.addRoom(room)
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
