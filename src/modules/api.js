@@ -311,11 +311,11 @@ class Api {
         socket.room = roomName
         if (joined) {
           this.removeRoomFromQueue(room)
-          this.logger.info('[JOIN] Joined Room ' + roomName)
+          this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
           callback(room.getSocketIds())
         } else {
           this.addRoom(room)
-          this.logger.info('[JOIN] Created Room ' + roomName)
+          this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
         }
       }
     } catch (e) {
