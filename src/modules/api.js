@@ -182,25 +182,20 @@ class Api {
 
     console.log('aaaa')
 
-    let clonedRoom = JSON.parse(JSON.stringify(room))
-
-    console.log(clonedRoom)
-
-
     // STATUS_AUDIO
     this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
-    clonedRoom.setStatus(this.config.room.STATUS_AUDIO)
-    clonedRoom.setVideo(false)
-    this.sockets.to(name).emit('query', clonedRoom.query())
+    room.setStatus(this.config.room.STATUS_AUDIO)
+    room.setVideo(false)
+    this.sockets.to(name).emit('query', room.query())
     setTimeout(function() {
       that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
-      clonedRoom.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+      room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
       that.sockets.to(name).emit('query', clonedRoom.query())
       // STATUS_AUDIO_SELECTION
       setTimeout(function() {
         that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
-        clonedRoom.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
-        that.sockets.to(name).emit('query', clonedRoom.query())
+        room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+        that.sockets.to(name).emit('query', room.query())
         // STATUS_AUDIO_RESULTS
         setTimeout(function() {
           that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
