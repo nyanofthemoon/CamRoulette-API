@@ -297,6 +297,11 @@ class Api {
         let joined = true
         if (!room || !room.room) {
           genderMatch = user.getGender()
+
+          //@TODO Remove me. This is for testing with just 2 devices//
+          genderMatch = 'M'
+          ////////////////////////////////////////////////////////////
+
           room = new Room(this.config)
           room.initialize(this.sockets, {
             name       : name,
