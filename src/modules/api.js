@@ -132,11 +132,14 @@ class Api {
   }
 
   addRoom(room) {
-    this.data.assoc[room.getName()] = {
-      genderMatch: room.getGenderMatch(),
-      ageGroup   : room.getAgeGroup()
+    let name = room.getName()
+    let genderMatch = room.getGenderMatch()
+    let ageGroup = room.getAgeGroup()
+    this.data.assoc[name] = {
+      genderMatch: genderMatch,
+      ageGroup   : ageGroup
     }
-    this.data.queue[room.getGenderMatch()][room.getAgeGroup()][room.getName()] = room
+    this.data.queue[genderMatch][ageGroup][name] = room
   }
 
   getRoomByName(name) {
@@ -147,9 +150,16 @@ class Api {
     return null
   }
 
-  removeRoom(room) {
-    delete(this.data.assoc[room.getName()])
-    delete(this.data.queue[room.getGenderMatch()][room.getAgeGroup()][room.getName()])
+  removeRoomFromQueue(room) {
+    let name = room.getName()
+    let genderMatch = room.getGenderMatch()
+    let ageGroup = room.getAgeGroup()
+    delete(this.data.queue[genderMatch][ageGroup][name])
+  }
+
+  removeRoomFromAssoc(room) {
+    let name = room.getName()
+    delete(this.data.assoc[name])
   }
 
   getRandomRoomByQuery(genderMatch, ageGroup) {
@@ -209,9 +219,15 @@ class Api {
         user = new User(this.config)
       }
 
+      let gender;
+      if ('male' === data.data.gender) {
+        gender = 'M'
+      } else {
+        gender = 'F'
+      }
       let userData = {
         email: data.data.email,
-        gender: data.data.gender,
+        gender: gender,
         orientation: 'straight',
         birthday: data.data.birthday,
         firstName: data.data.first_name,
@@ -288,7 +304,7 @@ class Api {
         socket.join(roomName)
         socket.room = roomName
         if (joined) {
-          this.removeRoom(room)
+          this.removeRoomFromQueue(room)
           this.logger.info('[JOIN] Joined Room ' + roomName)
           callback(room.getSocketIds())
         } else {
@@ -308,7 +324,8 @@ class Api {
         roomName = socket.room
         let room = this.getRoomByName(socket.room)
         if (room) {
-          this.removeRoom(room)
+          this.removeRoomFromQueue(room)
+          this.removeRoomFromAssoc(room)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
         socket.leave(roomName)
