@@ -163,17 +163,11 @@ class Api {
   }
 
   getRandomRoomByQuery(genderMatch, ageGroup) {
-
-    console.log('looking in array for ' + genderMatch + '/' + ageGroup);
-
     let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
-
     let key  = Math.floor(keys.length * Math.random())
 
     console.log('found key ' + key + ' for ' + keys[key])
-
     console.log(this.data.queue)
-
 
     return this.data.queue[genderMatch][ageGroup][keys[key]] || null
   }
@@ -305,7 +299,7 @@ class Api {
         let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name
         let joined = true
-        if (!room || !room.room) {
+        if (!room) {
           genderMatch = user.getGender()
 
           //@TODO Remove me. This is for testing with just 2 devices//
