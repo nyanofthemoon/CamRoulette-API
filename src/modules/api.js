@@ -328,7 +328,6 @@ class Api {
           case 'video':
             roomName = data.name
             room = this.getRoomByName(roomName)
-            this.leave(socket)
             if (room) {
               socket.join(roomName)
               socket.room = roomName
