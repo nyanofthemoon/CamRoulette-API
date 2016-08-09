@@ -188,29 +188,29 @@ class Api {
     room.setVideo(false)
     this.sockets.to(name).emit('query', room.query())
     setTimeout(function() {
-      that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+      that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
       room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-      that.sockets.to(name).emit('query', clonedRoom.query())
+      that.sockets.to(name).emit('query', room.query())
       // STATUS_AUDIO_SELECTION
       setTimeout(function() {
-        that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+        that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
         room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
         that.sockets.to(name).emit('query', room.query())
         // STATUS_AUDIO_RESULTS
         setTimeout(function() {
-          that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
+          that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO)
           room.setStatus(that.config.room.STATUS_VIDEO)
           room.setVideo(true)
           that.sockets.to(name).emit('query', room.query())
           // STATUS_VIDEO
           setTimeout(function() {
-            that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+            that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_SELECTION)
             room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
             that.sockets.to(name).emit('query', room.query())
             // STATUS_VIDEO_SELECTION
             setTimeout(function() {
               // STATUS_VIDEO_RESULTS
-              that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+              that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
               room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
               that.sockets.to(name).emit('query', room.query())
             }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
