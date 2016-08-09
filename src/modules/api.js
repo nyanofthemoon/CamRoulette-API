@@ -397,8 +397,8 @@ class Api {
         roomName = socket.room
         let room = this.getRoomByName(socket.room)
         if (room) {
-          this.removeRoomFromQueue(room)
           this.removeRoomFromAssoc(room)
+          this.removeRoomFromQueue(room)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
         socket.leave(roomName)

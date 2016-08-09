@@ -34,10 +34,6 @@ Api.initialize(io, CONFIG).then(function (api) {
           api.removeSession(this)
           if (socket.room) {
             api.leave(socket)
-            let room = api.getRoomByName(socket.room)
-            if (room) {
-              api.removeRoomFromAssoc(room)
-            }
           }
         })
       } else {
