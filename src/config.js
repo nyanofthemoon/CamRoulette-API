@@ -9,10 +9,24 @@ module.exports = {
     ]
   },
 
+  room: {
+    STATUS_AUDIO                : 'audio',
+    STATUS_AUDIO_SELECTION      : 'selection_audio',
+    STATUS_AUDIO_RESULTS        : 'results_audio',
+    STATUS_VIDEO                : 'video',
+    STATUS_VIDEO_SELECTION      : 'selection_video',
+    STATUS_VIDEO_RESULTS        : 'results_video',
+    WAIT_TIME_AUDIO_CONVERSATION: 5000,//600000,
+    WAIT_TIME_SELECTION_SCREEN  : 5000,//150000,
+    WAIT_TIME_RESULT_SCREEN     : 5000,//150000,
+    WAIT_TIME_VIDEO_CONVERSATION: 5000,//300000
+    NETWORK_RESPONSE_DELAY      : 1000
+  },
+
   environment: {
-    name   : process.env.NODE_ENV   || 'development',
-    port   : process.env.PORT       || 8888,
-    verbose: process.env.VERBOSE || true
+    name   : process.env.NODE_ENV || 'development',
+    port   : process.env.PORT     || 8888,
+    verbose: process.env.VERBOSE  || true
   },
 
   user: {

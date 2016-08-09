@@ -165,10 +165,6 @@ class Api {
   getRandomRoomByQuery(genderMatch, ageGroup) {
     let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
     let key  = Math.floor(keys.length * Math.random())
-
-    console.log('found key ' + key + ' for ' + keys[key])
-    console.log(this.data.queue)
-
     return this.data.queue[genderMatch][ageGroup][keys[key]] || null
   }
 
@@ -178,6 +174,46 @@ class Api {
 
   getUserBySocketId(id) {
     return this.data.users[this.data.sessions[id]] || null
+  }
+
+  runTimer(room) {
+    let that = this
+    let name = room.getName()
+    // STATUS_AUDIO
+    this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
+    room.setStatus(this.config.room.STATUS_AUDIO)
+    room.setVideo(false)
+    setTimeout(function() { let room = that.getRoomByName(name); if (room) {
+      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+      room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+      that.sockets.to(room.getName()).emit('query', room.query())
+      // STATUS_AUDIO_SELECTION
+      setTimeout(function() { let room = that.getRoomByName(name); if (room) {
+        this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+        room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+        that.sockets.to(room.getName()).emit('query', room.query())
+        // STATUS_AUDIO_RESULTS
+        setTimeout(function() { let room = that.getRoomByName(name); if (room) {
+          this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
+          room.setStatus(that.config.room.STATUS_VIDEO)
+          room.setVideo(true)
+          that.sockets.to(room.getName()).emit('query', room.query())
+          // STATUS_VIDEO
+          setTimeout(function() { let room = that.getRoomByName(name); if (room) {
+            this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+            room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+            that.sockets.to(room.getName()).emit('query', room.query())
+            // STATUS_VIDEO_SELECTION
+            setTimeout(function() { let room = that.getRoomByName(name); if (room) {
+              // STATUS_VIDEO_RESULTS
+              this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+              room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
+              that.sockets.to(room.getName()).emit('query', room.query())
+            }}, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+          }}, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
+        }}, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+      }}, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+    }}, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
   }
 
   bindSocketToPublicEvents(socket) {
@@ -195,10 +231,7 @@ class Api {
     var that = this
     try {
       socket.on('query', function(data) { that.query(data, socket) })
-      socket.on('join', function(name, callback) {
-        name = 'room_' + socket.id + '/' + Math.floor((Math.random() * 999999))
-        that.join(name, socket, callback)
-      })
+      socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
       socket.on('message', function(data) { that.message(data, socket) })
@@ -283,48 +316,71 @@ class Api {
     }
   }
 
-  join(name, socket, callback) {
+  join(data, socket, callback) {
     try {
       this.leave(socket)
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-        let genderMatch = user.getWantedGender()
-        let ageGroup = user.getAgeRange()
+        let roomName = null
+        let room = null
+        switch(data.type) {
 
-        //@TODO Remove me. This is for testing with just 2 devices//
-        genderMatch = 'M'
-        ageGroup    = '18-29'
-        ////////////////////////////////////////////////////////////
+          case 'video':
+            roomName = data.name
+            room = this.getRoomByName(roomName)
+            if (room) {
+              socket.join(roomName)
+              socket.room = roomName
+              this.logger.info('[JOIN] Re-joined Room ' + roomName)
+              callback(room.getSocketIds())
+            }
+            break;
 
-        let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
-        let roomName = name
-        let joined = true
-        if (!room) {
-          genderMatch = user.getGender()
+          case 'audio':
+            let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+            let genderMatch = user.getWantedGender()
+            let ageGroup = user.getAgeRange()
 
-          //@TODO Remove me. This is for testing with just 2 devices//
-          genderMatch = 'M'
-          ////////////////////////////////////////////////////////////
+            //@TODO Remove me. This is for testing with just 2 devices//
+            genderMatch = 'M'
+            ageGroup    = '18-29'
+            ////////////////////////////////////////////////////////////
 
-          room = new Room(this.config)
-          room.initialize(this.sockets, {
-            name       : name,
-            genderMatch: genderMatch,
-            ageGroup   : ageGroup
-          })
-          joined = false
-        } else {
-          roomName = room.getName()
-        }
-        socket.join(roomName)
-        socket.room = roomName
-        if (joined) {
-          this.removeRoomFromQueue(room)
-          this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
-          callback(room.getSocketIds())
-        } else {
-          this.addRoom(room)
-          this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+            room = this.getRandomRoomByQuery(genderMatch, ageGroup)
+            roomName = name
+            let joined = true
+            if (!room) {
+              genderMatch = user.getGender()
+
+              //@TODO Remove me. This is for testing with just 2 devices//
+              genderMatch = 'M'
+              ////////////////////////////////////////////////////////////
+
+              room = new Room(this.config)
+              room.initialize(this.sockets, {
+                name       : name,
+                genderMatch: genderMatch,
+                ageGroup   : ageGroup
+              })
+              joined = false
+            } else {
+              roomName = room.getName()
+            }
+            socket.join(roomName)
+            socket.room = roomName
+            if (joined) {
+              this.removeRoomFromQueue(room)
+              this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+              callback(room.getSocketIds())
+            } else {
+              this.addRoom(room)
+              this.runTimer(room)
+              this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+            }
+            break;
+
+          default:
+            break;
         }
       }
     } catch (e) {
@@ -340,7 +396,6 @@ class Api {
         let room = this.getRoomByName(socket.room)
         if (room) {
           this.removeRoomFromQueue(room)
-          this.removeRoomFromAssoc(room)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
         socket.leave(roomName)
