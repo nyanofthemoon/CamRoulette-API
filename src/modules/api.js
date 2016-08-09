@@ -286,6 +286,12 @@ class Api {
       if (user) {
         let genderMatch = user.getWantedGender()
         let ageGroup = user.getAgeRange()
+
+        //@TODO Remove me. This is for testing with just 2 devices//
+        genderMatch = 'M'
+        ageGroup    = '18-29'
+        ////////////////////////////////////////////////////////////
+
         let room = this.getRandomRoomByQuery(genderMatch, ageGroup)
         let roomName = name
         let joined = true
