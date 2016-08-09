@@ -185,6 +185,7 @@ class Api {
     room.setVideo(false)
     this.sockets.to(name).emit('query', room.query())
     setTimeout(function() {
+      if (room.getSocketIds().length > 1) {
       that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
       room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
       that.sockets.to(name).emit('query', room.query())
@@ -214,7 +215,10 @@ class Api {
           }, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
         }, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
       }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-    }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
+    } else {
+        room.setStatus(that.config.room.STATUS_TERMINATED)
+        that.sockets.to(name).emit('query', room.query())
+    } }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
   }
 
   bindSocketToPublicEvents(socket) {

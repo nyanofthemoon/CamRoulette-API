@@ -16,6 +16,7 @@ module.exports = {
     STATUS_VIDEO                : 'video',
     STATUS_VIDEO_SELECTION      : 'selection_video',
     STATUS_VIDEO_RESULTS        : 'results_video',
+    STATUS_TERMINATED           : 'terminated',
     WAIT_TIME_AUDIO_CONVERSATION: 5000,//600000,
     WAIT_TIME_SELECTION_SCREEN  : 5000,//150000,
     WAIT_TIME_RESULT_SCREEN     : 5000,//150000,
