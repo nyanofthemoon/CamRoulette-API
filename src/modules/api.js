@@ -179,6 +179,7 @@ class Api {
   runTimer(room) {
     let that = this
     let name = room.getName()
+    let room = JSON.parse(JSON.stringify(room));
     // STATUS_AUDIO
     this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
     room.setStatus(this.config.room.STATUS_AUDIO)
@@ -370,8 +371,8 @@ class Api {
             socket.join(roomName)
             socket.room = roomName
             if (joined) {
-              this.removeRoomFromQueue(room)
               this.runTimer(room)
+              this.removeRoomFromQueue(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
             } else {
