@@ -319,7 +319,6 @@ class Api {
 
   join(data, socket, callback) {
     try {
-      this.leave(socket)
       let user = this.getUserBySocketId(socket.id)
       if (user) {
         let roomName = null
@@ -329,6 +328,7 @@ class Api {
           case 'video':
             roomName = data.name
             room = this.getRoomByName(roomName)
+            this.leave(socket)
             if (room) {
               socket.join(roomName)
               socket.room = roomName
@@ -338,6 +338,7 @@ class Api {
             break;
 
           case 'audio':
+            this.leave(socket)
             let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch = user.getWantedGender()
             let ageGroup = user.getAgeRange()
