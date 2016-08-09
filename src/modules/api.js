@@ -188,10 +188,6 @@ class Api {
       that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
       room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
       that.sockets.to(name).emit('query', room.query())
-      let sockets = room.getSockets()
-      sockets.forEach(function(socket) {
-        socket.leave(name)
-      })
       // STATUS_AUDIO_SELECTION
       setTimeout(function() { if (room.getSocketIds().length > 1) {
         that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
