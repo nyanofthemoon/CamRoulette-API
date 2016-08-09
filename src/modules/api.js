@@ -184,29 +184,29 @@ class Api {
     room.setStatus(this.config.room.STATUS_AUDIO)
     room.setVideo(false)
     setTimeout(function() { let room = that.getRoomByName(name); if (room) {
-      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+      that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
       room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
       that.sockets.to(room.getName()).emit('query', room.query())
       // STATUS_AUDIO_SELECTION
       setTimeout(function() { let room = that.getRoomByName(name); if (room) {
-        this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+        that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
         room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
         that.sockets.to(room.getName()).emit('query', room.query())
         // STATUS_AUDIO_RESULTS
         setTimeout(function() { let room = that.getRoomByName(name); if (room) {
-          this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
+          that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
           room.setStatus(that.config.room.STATUS_VIDEO)
           room.setVideo(true)
           that.sockets.to(room.getName()).emit('query', room.query())
           // STATUS_VIDEO
           setTimeout(function() { let room = that.getRoomByName(name); if (room) {
-            this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+            that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
             room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
             that.sockets.to(room.getName()).emit('query', room.query())
             // STATUS_VIDEO_SELECTION
             setTimeout(function() { let room = that.getRoomByName(name); if (room) {
               // STATUS_VIDEO_RESULTS
-              this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+              that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
               room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
               that.sockets.to(room.getName()).emit('query', room.query())
             }}, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
@@ -370,11 +370,11 @@ class Api {
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
+              this.runTimer(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
             } else {
               this.addRoom(room)
-              this.runTimer(room)
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
             }
             break;
