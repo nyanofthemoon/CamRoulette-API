@@ -163,8 +163,18 @@ class Api {
   }
 
   getRandomRoomByQuery(genderMatch, ageGroup) {
+
+    console.log('looking in array for ' genderMatch + '/' + ageGroup);
+
     let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
-    let key  = keys.length * Math.random() << 0
+
+    let key  = Math.floor(keys.length * Math.random())
+
+    console.log('found key ' + key + ' for ' + keys[key])
+
+    console.log(this.data.queue)
+
+
     return this.data.queue[genderMatch][ageGroup][keys[key]] || null
   }
 
