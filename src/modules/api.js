@@ -179,21 +179,21 @@ class Api {
   runTimer(room) {
     let that = this
     let name = room.getName()
-    room = JSON.parse(JSON.stringify(room));
+    let clonedRoom = JSON.parse(JSON.stringify(room));
     // STATUS_AUDIO
     this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
-    room.setStatus(this.config.room.STATUS_AUDIO)
-    room.setVideo(false)
-    this.sockets.to(name).emit('query', room.query())
+    clonedRoom.setStatus(this.config.room.STATUS_AUDIO)
+    clonedRoom.setVideo(false)
+    this.sockets.to(name).emit('query', clonedRoom.query())
     setTimeout(function() {
       that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
-      room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-      that.sockets.to(name).emit('query', room.query())
+      clonedRoom.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+      that.sockets.to(name).emit('query', clonedRoom.query())
       // STATUS_AUDIO_SELECTION
       setTimeout(function() {
         that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
-        room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
-        that.sockets.to(name).emit('query', room.query())
+        clonedRoom.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+        that.sockets.to(name).emit('query', clonedRoom.query())
         // STATUS_AUDIO_RESULTS
         setTimeout(function() {
           that.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_VIDEO)
