@@ -179,7 +179,7 @@ class Api {
   runTimer(room) {
     let that = this
     let name = room.getName()
-    let room = JSON.parse(JSON.stringify(room));
+    room = JSON.parse(JSON.stringify(room));
     // STATUS_AUDIO
     this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
     room.setStatus(this.config.room.STATUS_AUDIO)
