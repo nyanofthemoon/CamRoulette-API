@@ -187,6 +187,9 @@ class Api {
       room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
       this.sockets.to(name).emit('query', room.query())
       setTimeout(function () {
+
+        console.log('we got here...');
+
         if (room.getSocketIds().length > 1) {
           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
           room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
