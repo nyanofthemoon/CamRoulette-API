@@ -181,15 +181,12 @@ class Api {
       let that = this
       let name = room.getName()
       // STATUS_AUDIO
-      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO + ' for ' + (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
+      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
       room.setStatus(this.config.room.STATUS_AUDIO)
       room.setVideo(false)
       room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
       this.sockets.to(name).emit('query', room.query())
       setTimeout(function () {
-
-        console.log('we got here...');
-
         if (room.getSocketIds().length > 1) {
           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
           room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
