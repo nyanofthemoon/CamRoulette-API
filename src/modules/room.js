@@ -54,6 +54,10 @@ class Room {
     this.data.video = video
   }
 
+  setTimer(seconds) {
+    this.data.timer = seconds
+  }
+
   hasUser(user) {
     if (this.socketIds.indexOf(user.getSocketId()) != -1) {
       return true
