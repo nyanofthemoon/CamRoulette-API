@@ -181,7 +181,7 @@ class Api {
       let that = this
       let name = room.getName()
       // STATUS_AUDIO
-      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
+      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO + ' for ' + (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
       room.setStatus(this.config.room.STATUS_AUDIO)
       room.setVideo(false)
       room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
