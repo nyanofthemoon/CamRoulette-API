@@ -394,7 +394,8 @@ class Api {
               room.initialize(this.sockets, {
                 name       : name,
                 genderMatch: genderMatch,
-                ageGroup   : ageGroup
+                ageGroup   : ageGroup,
+                status     : this.config.room.STATUS_WAITING
               })
               joined = false
             } else {
@@ -410,6 +411,7 @@ class Api {
             } else {
               this.addRoom(room)
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+              socket.emit('query', room.query())
             }
             break;
 

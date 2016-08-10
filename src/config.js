@@ -10,6 +10,7 @@ module.exports = {
   },
 
   room: {
+    STATUS_WAITING              : 'waiting',
     STATUS_AUDIO                : 'audio',
     STATUS_AUDIO_SELECTION      : 'selection_audio',
     STATUS_AUDIO_RESULTS        : 'results_audio',
