@@ -194,7 +194,7 @@ class Api {
           that.sockets.to(name).emit('query', room.query())
           // STATUS_AUDIO_SELECTION
           setTimeout(function () {
-            room = this.getRoomByName(name)
+            room = that.getRoomByName(name)
             if (room && room.getSocketIds().length > 1) {
               that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
               room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
@@ -217,7 +217,7 @@ class Api {
                       that.sockets.to(name).emit('query', room.query())
                       // STATUS_VIDEO_SELECTION
                       setTimeout(function () {
-                        room = this.getRoomByName(name)
+                        room = that.getRoomByName(name)
                         if (room && room.getSocketIds().length > 1) {
                           // STATUS_VIDEO_RESULTS
                           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
@@ -451,14 +451,14 @@ class Api {
       let roomName = ''
       if (socket.room) {
         roomName = socket.room
+        this.sockets.to(roomName).emit('leave', socket.id)
+        socket.leave(roomName)
+        socket.room = null;
         let room = this.getRoomByName(socket.room)
         if (room) {
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
         }
-        this.sockets.to(roomName).emit('leave', socket.id)
-        socket.leave(roomName)
-        socket.room = null;
         this.logger.info('[LEAVE] Left Room ' + roomName)
       }
     } catch (e) {
