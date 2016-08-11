@@ -75,16 +75,14 @@ class Room {
   }
 
   getSocketIds() {
-    var socketIds = this.io.nsps['/'].adapter.rooms[this.getName()];
-    if (socketIds && socketIds.sockets) {
-      var collection = [];
-      for (var key in socketIds.sockets) {
-        collection.push(key);
+    let socketIds = []
+    let room = this.io.nsps['/'].adapter.rooms[this.getName()]
+    if (room && room.sockets) {
+      for (var key in room.sockets) {
+        socketIds.push(key)
       }
-      return collection;
-    } else {
-      return [];
     }
+    return socketIds;
   }
 
   query() {

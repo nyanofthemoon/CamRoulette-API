@@ -185,70 +185,66 @@ class Api {
       room.setStatus(this.config.room.STATUS_AUDIO)
       room.setVideo(false)
       room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
-
-      console.log(room.getSocketIds())
-
       this.sockets.to(name).emit('query', room.query())
       setTimeout(function () {
-        room == that.getRoomByName(name)
-        if (room && room.getSocketIds().length > 1) {
+        if (room.getSocketIds().length > 1) {
           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
           room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
           room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
           that.sockets.to(name).emit('query', room.query())
           let sockets = room.getSockets()
-          sockets.forEach(function(socket) {
-
-
-
+          sockets.forEach(function (socket) {
             socket.leave(name)
-            console.log('leaving room in timer...');
           })
           // STATUS_AUDIO_SELECTION
           setTimeout(function () {
-            that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
-            room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
-            room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
-            that.sockets.to(name).emit('query', room.query())
-            // STATUS_AUDIO_RESULTS
-            setTimeout(function () {
-              room == that.getRoomByName(name)
-              if (room && room.getSocketIds().length > 1) {
-                that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO)
-                room.setStatus(that.config.room.STATUS_VIDEO)
-                room.setVideo(true)
-                room.setTimer(that.config.room.WAIT_TIME_VIDEO_CONVERSATION)
-                that.sockets.to(name).emit('query', room.query())
-                // STATUS_VIDEO
-                setTimeout(function () {
-                  if (room.getSocketIds().length > 1) {
-                    that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_SELECTION)
-                    room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
-                    room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-                    that.sockets.to(name).emit('query', room.query())
-                    // STATUS_VIDEO_SELECTION
-                    setTimeout(function () {
-                      if (room.getSocketIds().length > 1) {
-                        // STATUS_VIDEO_RESULTS
-                        that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
-                        room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
-                        room.setTimer(0)
-                        that.sockets.to(name).emit('query', room.query())
-                      } else {
-                        room.setStatus(that.config.room.STATUS_TERMINATED)
-                        that.sockets.to(name).emit('query', room.query())
-                      }
-                    }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-                  } else {
-                    room.setStatus(that.config.room.STATUS_TERMINATED)
-                    that.sockets.to(name).emit('query', room.query())
-                  }
-                }, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
-              } else {
-                room.setStatus(that.config.room.STATUS_TERMINATED)
-                that.sockets.to(name).emit('query', room.query())
-              }
-            }, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+            if (room.getSocketIds().length > 1) {
+              that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
+              room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+              room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
+              that.sockets.to(name).emit('query', room.query())
+              // STATUS_AUDIO_RESULTS
+              setTimeout(function () {
+                if (room.getSocketIds().length > 1) {
+                  that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO)
+                  room.setStatus(that.config.room.STATUS_VIDEO)
+                  room.setVideo(true)
+                  room.setTimer(that.config.room.WAIT_TIME_VIDEO_CONVERSATION)
+                  that.sockets.to(name).emit('query', room.query())
+                  // STATUS_VIDEO
+                  setTimeout(function () {
+                    if (room.getSocketIds().length > 1) {
+                      that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_SELECTION)
+                      room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+                      room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+                      that.sockets.to(name).emit('query', room.query())
+                      // STATUS_VIDEO_SELECTION
+                      setTimeout(function () {
+                        if (room.getSocketIds().length > 1) {
+                          // STATUS_VIDEO_RESULTS
+                          that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
+                          room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
+                          room.setTimer(0)
+                          that.sockets.to(name).emit('query', room.query())
+                        } else {
+                          room.setStatus(that.config.room.STATUS_TERMINATED)
+                          that.sockets.to(name).emit('query', room.query())
+                        }
+                      }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+                    } else {
+                      room.setStatus(that.config.room.STATUS_TERMINATED)
+                      that.sockets.to(name).emit('query', room.query())
+                    }
+                  }, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
+                } else {
+                  room.setStatus(that.config.room.STATUS_TERMINATED)
+                  that.sockets.to(name).emit('query', room.query())
+                }
+              }, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
+            } else {
+              room.setStatus(that.config.room.STATUS_TERMINATED)
+              that.sockets.to(name).emit('query', room.query())
+            }
           }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
         } else {
           room.setStatus(that.config.room.STATUS_TERMINATED)
@@ -368,18 +364,8 @@ class Api {
         let room = null
         switch(data.type) {
 
-          case 'video':
-            roomName = data.name
-            room = this.getRoomByName(roomName)
-            if (room) {
-              socket.join(roomName)
-              socket.room = roomName
-              this.logger.info('[JOIN] Re-joined Room ' + roomName)
-              callback(room.getSocketIds())
-            }
-            break;
-
           case 'audio':
+          case 'video':
             this.leave(socket)
             let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch = user.getWantedGender()
@@ -400,6 +386,7 @@ class Api {
 
             // Cannot Join A User You Have Reported - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
+              console.log('1')
               let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
               if (tempRoom) {
                 if (!user.hasReported(tempRoom.getInitiator())) {
