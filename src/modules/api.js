@@ -360,8 +360,7 @@ class Api {
         let room = null
         switch(data.type) {
 
-          case 'audio':
-          case 'video':
+          case 'match':
             this.leave(socket)
             let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch = user.getWantedGender()
