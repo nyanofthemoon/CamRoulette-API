@@ -68,8 +68,9 @@ class Room {
 
   hasAllPositiveResultsForStep(step) {
     let match = true
+    let that = this
     Object.keys(this.data.results[step]).map(function(key) {
-      if ('no' === this.data.results[step][key]) {
+      if ('no' === that.data.results[step][key]) {
         match = false
       }
     });
