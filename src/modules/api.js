@@ -498,6 +498,9 @@ class Api {
       switch (data.type) {
         case 'match':
             let room = this.getRoomByName(socket.room)
+
+            console.log(socket.room)
+
             if (room) {
               room.setResults(socket, data.data.step, data.data.action)
               info = 'Updated match for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
