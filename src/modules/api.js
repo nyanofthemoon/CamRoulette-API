@@ -436,7 +436,7 @@ class Api {
               let that = this
               setTimeout(function() {
                 that.addRoom(room)
-              }, (user.getReports() * (that.config.user.WAIT_TIME_PER_USER_REPORT)))
+              }, (user.getReports() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
             }
             break;
         }
