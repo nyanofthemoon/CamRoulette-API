@@ -148,6 +148,7 @@ class Api {
     console.log(name)
     console.log(this.data.assoc[name])
     console.log(this.data.queue)
+    console.log(this.data.queue[data.genderMatch][data.ageGroup][name])
 
 
     if (data) {
