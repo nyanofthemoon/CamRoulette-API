@@ -22,7 +22,8 @@ module.exports = {
     WAIT_TIME_SELECTION_SCREEN  : parseInt(process.env.WAIT_TIME_SELECTION_SCREEN)   || 150000,
     WAIT_TIME_RESULT_SCREEN     : parseInt(process.env.WAIT_TIME_RESULT_SCREEN)      || 150000,
     WAIT_TIME_VIDEO_CONVERSATION: parseInt(process.env.WAIT_TIME_VIDEO_CONVERSATION) || 3000000,
-    NETWORK_RESPONSE_DELAY      : parseInt(process.env.NETWORK_RESPONSE_DELAY)       || 1000
+    NETWORK_RESPONSE_DELAY      : parseInt(process.env.NETWORK_RESPONSE_DELAY)       || 1000,
+    FIND_BY_QUERY_RETRIES       : 3
   },
 
   environment: {
@@ -32,7 +33,8 @@ module.exports = {
   },
 
   user: {
-    salt: process.env.USER_SALT || '&!perd3rder5+%'
+    salt: process.env.USER_SALT || '&!perd3rder5+%',
+    WAIT_TIME_PER_USER_REPORT: parseInt(process.env.WAIT_TIME_PER_USER_REPORT) || 1500
   },
 
   redis: {

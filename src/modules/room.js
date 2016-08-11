@@ -7,7 +7,7 @@ class Room {
   constructor(config) {
     this.logger = new Logger('ROOM', config)
     this.io = null
-    this.logs = []
+    this.initiator = null
     this.data = {
       name       : null,
       status     : null,
@@ -58,11 +58,12 @@ class Room {
     this.data.timer = seconds
   }
 
-  hasUser(user) {
-    if (this.socketIds.indexOf(user.getSocketId()) != -1) {
-      return true
-    }
-    return false
+  setInitiator(id) {
+    this.initiator = id
+  }
+
+  getInitiator() {
+    return this.initiator
   }
 
   getSockets() {

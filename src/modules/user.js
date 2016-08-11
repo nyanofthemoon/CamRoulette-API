@@ -20,6 +20,8 @@ class User {
       locale         : null,
       timezone       : null,
       wantedGender   : null,
+      reports        : 0,
+      reported       : [],
       contacts       : []
     }
   }
@@ -62,6 +64,14 @@ class User {
 
   getEmail() {
     return this.data.email
+  }
+
+  getReports() {
+    return this.data.reports
+  }
+
+  hasReported(id) {
+    return this.data.reported.indexOf(id) !== -1
   }
 
   getAgeRange() {
