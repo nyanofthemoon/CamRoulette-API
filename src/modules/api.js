@@ -452,9 +452,9 @@ class Api {
     try {
       let roomName = socket.room
       if (roomName) {
+        socket.leave(roomName)
+        socket.room = null
         this.sockets.to(roomName).emit('leave', socket.id)
-        this.sockets.sockets.in(roomName).leave(roomName)
-        socket.room = null;
         let room = this.getRoomByName(roomName)
         if (room) {
           this.removeRoomFromAssoc(room)
