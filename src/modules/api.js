@@ -360,6 +360,7 @@ class Api {
         let room = null
         switch(data.type) {
 
+          default:
           case 'match':
             this.leave(socket)
             let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
@@ -434,9 +435,6 @@ class Api {
                 that.addRoom(room)
               }, (user.getReports() * (that.config.user.WAIT_TIME_PER_USER_REPORT)))
             }
-            break;
-
-          default:
             break;
         }
       }
