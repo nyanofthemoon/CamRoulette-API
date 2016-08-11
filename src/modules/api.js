@@ -363,7 +363,7 @@ class Api {
           default:
           case 'match':
             this.leave(socket)
-            let name = data.type + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+            let name = data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch = user.getWantedGender()
             let ageGroup = user.getAgeRange()
 
