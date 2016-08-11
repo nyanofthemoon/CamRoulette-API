@@ -395,7 +395,7 @@ class Api {
               console.log('1')
               let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
               console.log('2')
-              if (!tempRoom || !user.hasReported(tempRoom.getInitiator())) {
+              if (tempRoom && !user.hasReported(tempRoom.getInitiator())) {
                 console.log('3')
                 let initiator = this.getUserById(tempRoom.getInitiator())
                 console.log('4')
