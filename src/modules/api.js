@@ -434,9 +434,9 @@ class Api {
               socket.emit('query', room.query())
               // Reported Users Have To Wait WAIT_TIME_PER_USER_REPORT millis per reports before room queryable
               let that = this
-              //setTimeout(function() {
+              setTimeout(function() {
                 that.addRoom(room)
-              //}, (user.getReports() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
+              }, (user.getReports() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
             }
             break;
         }
@@ -456,7 +456,7 @@ class Api {
         socket.room = null;
         let room = this.getRoomByName(socket.room)
         if (room) {
-          this.removeRoomFromAssoc(room)
+          //this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
         }
         this.logger.info('[LEAVE] Left Room ' + roomName)
