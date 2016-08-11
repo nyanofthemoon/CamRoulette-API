@@ -270,7 +270,7 @@ class Api {
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
-      socket.on('update', function(data) { that.update(data, socket) })
+      socket.on('record', function(data) { that.record(data, socket) })
       //socket.on('message', function(data) { that.message(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
@@ -489,7 +489,7 @@ class Api {
     }
   }
 
-  update(data, socket) {
+  record(data, socket) {
     try {
       let info = null
       switch (data.type) {
@@ -504,10 +504,10 @@ class Api {
           break
       }
       if (info) {
-        this.logger.verbose('[UPDATE] ' + data.type + ' ' + info)
+        this.logger.verbose('[RECORD] ' + data.type + ' ' + info)
       }
     } catch (e) {
-      this.logger.error('[UPDATE] ' + JSON.stringify(data) + ' ' + e)
+      this.logger.error('[RECORD] ' + JSON.stringify(data) + ' ' + e)
     }
   }
 
