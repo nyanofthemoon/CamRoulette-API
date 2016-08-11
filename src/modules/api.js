@@ -270,7 +270,8 @@ class Api {
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
-      socket.on('message', function(data) { that.message(data, socket) })
+      socket.on('update', function(data, callback) { that.update(data, socket) })
+      //socket.on('message', function(data) { that.message(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to private events ', e)
@@ -333,7 +334,7 @@ class Api {
           let user = this.getUserBySocketId(socket.id)
           if (user) {
             let room = this.getRoomByName(data.name)
-            if (room && room.hasUser(user)) {
+            if (room) {
               info = room.query()
             } else {
               this.logger.error('[QUERY] ' + socket.id + ' does not have read access over ' + data.name)
@@ -486,6 +487,28 @@ class Api {
       }
     } catch (e) {
       this.logger.error('[MESSAGE] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  update(data, socket) {
+    try {
+      let info = null
+      switch (data.type) {
+        case 'match':
+            let room = this.getRoomByName(socket.room)
+            if (room) {
+              room.setResults(socket, data.data.step, data.data.action)
+              info = 'Updated match for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
+            }
+          break
+        default:
+          break
+      }
+      if (info) {
+        this.logger.verbose('[UPDATE] ' + data.type + info)
+      }
+    } catch (e) {
+      this.logger.error('[UPDATE] ' + JSON.stringify(data) + ' ' + e)
     }
   }
 

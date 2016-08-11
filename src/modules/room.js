@@ -66,6 +66,10 @@ class Room {
     return this.initiator
   }
 
+  setResults(socket, step, action) {
+    this.data.results[step][socket.id] = action
+  }
+
   getSockets() {
     let sockets = []
     for (var socketId in this.getSocketIds()) {

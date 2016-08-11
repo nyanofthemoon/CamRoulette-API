@@ -145,3 +145,20 @@ socket.on("query", callback)
   }
 }
 ```
+
+### User Match Choice
+
+After either the audio or video step of a meetup, users must choose to either continue or end the process.
+A report flag is also available for flagging abusive behaviors.
+
+###### Request
+```js
+socket.emit("update", {
+  "type": "match",
+  "data: {
+    "step"  : "audio|video",
+    "action": "continue|end"
+    "report": false|true
+  }
+})
+```
