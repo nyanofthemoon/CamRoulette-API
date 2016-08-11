@@ -193,7 +193,7 @@ class Api {
           room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
           that.sockets.to(name).emit('query', room.query())
           let sockets = room.getSockets()
-          sockets.forEach(function (socket) {
+          sockets.forEach(function(socket) {
             socket.leave(name)
           })
           // STATUS_AUDIO_SELECTION
@@ -392,18 +392,17 @@ class Api {
 
             // Cannot Join A User You Have Reported - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              console.log('1')
               let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
-              console.log('2')
-              if (tempRoom && !user.hasReported(tempRoom.getInitiator())) {
-                console.log('3')
-                let initiator = this.getUserById(tempRoom.getInitiator())
-                console.log('4')
-                if (!initiator.hasReported(user.getId())) {
-                  i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
-                  room = tempRoom
+              if (tempRoom) {
+                if (!user.hasReported(tempRoom.getInitiator())) {
+                  let initiator = this.getUserById(tempRoom.getInitiator())
+                  if (!initiator.hasReported(user.getId())) {
+                    i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                    room = tempRoom
+                  }
                 }
-                console.log('5')
+              } else {
+                i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
               }
             }
 

@@ -67,29 +67,15 @@ class Room {
   }
 
   getSockets() {
-    var socketIds = this.io.nsps['/'].adapter.rooms[this.getName()];
-    if (socketIds) {
-      var collection = [];
-      for (var key in socketIds) {
-        collection.push(key);
-      }
-      return collection;
-    } else {
-      return [];
+    let sockets = []
+    for (var socketId in this.io.nsps['/'].adapter.rooms[this.getName()]) {
+      sockets.push(this.io.sockets.connected[socketId])
     }
+    return sockets
   }
 
   getSocketIds() {
-    var socketIds = this.io.nsps['/'].adapter.rooms[this.getName()];
-    if (socketIds && socketIds.sockets) {
-      var collection = [];
-      for (var key in socketIds.sockets) {
-        collection.push(key);
-      }
-      return collection;
-    } else {
-      return [];
-    }
+    return this.io.nsps['/'].adapter.rooms[this.getName()]
   }
 
   query() {
