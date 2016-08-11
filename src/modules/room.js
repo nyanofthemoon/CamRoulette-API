@@ -69,7 +69,7 @@ class Room {
   getSockets() {
     let sockets = []
     for (var socketId in this.getSocketIds()) {
-      sockets.push(this.io.sockets.connected[socketId])
+      sockets.push(this.io.of('/').connected[socketId])
     }
     return sockets
   }

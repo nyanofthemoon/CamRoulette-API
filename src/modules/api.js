@@ -191,9 +191,6 @@ class Api {
       this.sockets.to(name).emit('query', room.query())
       setTimeout(function () {
         room == that.getRoomByName(name)
-        
-        console.log(room.getSocketIds())
-
         if (room && room.getSocketIds().length > 1) {
           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
           room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
@@ -201,6 +198,9 @@ class Api {
           that.sockets.to(name).emit('query', room.query())
           let sockets = room.getSockets()
           sockets.forEach(function(socket) {
+
+
+
             socket.leave(name)
             console.log('leaving room in timer...');
           })
