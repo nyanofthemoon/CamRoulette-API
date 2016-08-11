@@ -66,6 +66,16 @@ class Room {
     return this.initiator
   }
 
+  hasAllPositiveResultsForStep(step) {
+    let match = true
+    Object.keys(this.data.results[step]).map(function(key) {
+      if ('no' === this.data.results[step][key]) {
+        match = false
+      }
+    });
+    return match
+  }
+
   setResults(socket, step, action) {
     this.data.results[step][socket.id] = action
   }
