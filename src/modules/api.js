@@ -457,12 +457,9 @@ class Api {
     try {
       let roomName = socket.room
       if (roomName) {
-        socket.room = null;
         this.sockets.to(roomName).emit('leave', socket.id)
-        this.sockets.sockets.clients(roomName).forEach(function(s){
-          console.log(s.id + ' is leaving')
-          s.leave(roomName);
-        });
+        this.sockets.sockets.in(roomName).leave(roomName)
+        socket.room = null;
         let room = this.getRoomByName(roomName)
         if (room) {
           this.removeRoomFromAssoc(room)
@@ -471,7 +468,7 @@ class Api {
         this.logger.info('[LEAVE] Left Room ' + roomName)
       }
     } catch (e) {
-      this.logger.error('[LEAVE] ' + JSON.stringify(roomName) + ' ' + e)
+      this.logger.error('[LEAVE] ' + e)
     }
   }
 
