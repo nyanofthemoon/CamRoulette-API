@@ -144,6 +144,12 @@ class Api {
 
   getRoomByName(name) {
     let data = this.data.assoc[name]
+
+    console.log(name)
+    console.log(this.data.assoc[name])
+    console.log(this.data.queue)
+
+
     if (data) {
       return this.data.queue[data.genderMatch][data.ageGroup][name] || null
     }
@@ -497,10 +503,6 @@ class Api {
       switch (data.type) {
         case 'match':
             let room = this.getRoomByName(socket.room)
-
-            console.log(socket.room)
-            console.log(room)
-
             if (room) {
               room.setResults(socket, data.data.step, data.data.action)
               info = 'Updated match for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
