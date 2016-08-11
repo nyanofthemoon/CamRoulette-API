@@ -194,7 +194,8 @@ class Api {
           that.sockets.to(name).emit('query', room.query())
           // STATUS_AUDIO_SELECTION
           setTimeout(function () {
-            if (room.getSocketIds().length > 1) {
+            room = this.getRoomByName(name)
+            if (room && room.getSocketIds().length > 1) {
               that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
               room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
               room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
@@ -216,7 +217,8 @@ class Api {
                       that.sockets.to(name).emit('query', room.query())
                       // STATUS_VIDEO_SELECTION
                       setTimeout(function () {
-                        if (room.getSocketIds().length > 1) {
+                        room = this.getRoomByName(name)
+                        if (room && room.getSocketIds().length > 1) {
                           // STATUS_VIDEO_RESULTS
                           that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
                           room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
@@ -491,7 +493,6 @@ class Api {
   }
 
   update(data, socket) {
-    console.log(data)
     try {
       let info = null
       switch (data.type) {
@@ -500,6 +501,8 @@ class Api {
             if (room) {
               room.setResults(socket, data.data.step, data.data.action)
               info = 'Updated match for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
+            } else {
+              info = 'Room match could not be updated'
             }
           break
         default:
