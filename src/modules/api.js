@@ -392,14 +392,14 @@ class Api {
 
             // Cannot Join A User You Have Reported - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              room = this.getRandomRoomByQuery(genderMatch, ageGroup)
-              if (!room || !user.hasReported(room.getInitiator())) {
-                let initiator = this.getUserById(room.getInitiator())
+              let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
+              if (!tempRoom || !user.hasReported(tempRoom.getInitiator())) {
+                let initiator = this.getUserById(tempRoom.getInitiator())
                 if (!initiator.hasReported(user.getId())) {
                   i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                  room = tempRoom
                 }
               }
-              room = null
             }
 
             roomName = name
