@@ -500,6 +500,7 @@ class Api {
             let room = this.getRoomByName(socket.room)
 
             console.log(socket.room)
+            console.log(room)
 
             if (room) {
               room.setResults(socket, data.data.step, data.data.action)
