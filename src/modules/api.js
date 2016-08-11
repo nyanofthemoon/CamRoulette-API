@@ -448,15 +448,14 @@ class Api {
 
   leave(socket) {
     try {
-      let roomName = ''
-      if (socket.room) {
-        roomName = socket.room
-        this.sockets.to(roomName).emit('leave', socket.id)
-        socket.leave(roomName)
+      let roomName = socket.room
+      if (roomName) {
         socket.room = null;
-        let room = this.getRoomByName(socket.room)
+        socket.leave(roomName)
+        this.sockets.to(roomName).emit('leave', socket.id)
+        let room = this.getRoomByName(roomName)
         if (room) {
-          //this.removeRoomFromAssoc(room)
+          this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
         }
         this.logger.info('[LEAVE] Left Room ' + roomName)
