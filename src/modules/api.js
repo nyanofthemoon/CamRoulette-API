@@ -501,9 +501,7 @@ class Api {
             let room = this.getRoomByName(socket.room)
             if (room) {
               room.setResults(socket, data.data.step, data.data.action)
-              info = 'Updated match for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
-            } else {
-              info = 'Room match could not be updated'
+              info = 'Updated for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
             }
           break
         default:
