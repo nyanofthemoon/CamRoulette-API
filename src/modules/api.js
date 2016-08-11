@@ -196,6 +196,7 @@ class Api {
           let sockets = room.getSockets()
           sockets.forEach(function(socket) {
             socket.leave(name)
+            console.log('leaving room in timer...');
           })
           // STATUS_AUDIO_SELECTION
           setTimeout(function () {

@@ -71,6 +71,7 @@ class Room {
     for (var socketId in this.getSocketIds()) {
       sockets.push(this.io.sockets.connected[socketId])
     }
+    return sockets
   }
 
   getSocketIds() {
