@@ -270,7 +270,7 @@ class Api {
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
-      socket.on('update', function(data, callback) { that.update(data, socket) })
+      socket.on('update', function(data) { that.update(data, socket) })
       //socket.on('message', function(data) { that.message(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
@@ -383,7 +383,6 @@ class Api {
 
             // Cannot Join A User You Have Reported - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              console.log('1')
               let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
               if (tempRoom) {
                 if (!user.hasReported(tempRoom.getInitiator())) {
@@ -505,7 +504,7 @@ class Api {
           break
       }
       if (info) {
-        this.logger.verbose('[UPDATE] ' + data.type + info)
+        this.logger.verbose('[UPDATE] ' + data.type + ' ' + info)
       }
     } catch (e) {
       this.logger.error('[UPDATE] ' + JSON.stringify(data) + ' ' + e)
