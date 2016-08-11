@@ -137,22 +137,16 @@ class Api {
     let ageGroup = room.getAgeGroup()
     this.data.assoc[name] = {
       genderMatch: genderMatch,
-      ageGroup   : ageGroup
+      ageGroup   : ageGroup,
+      room       : room
     }
-    this.data.queue[genderMatch][ageGroup][name] = room
+    this.data.queue[genderMatch][ageGroup][name] = name
   }
 
   getRoomByName(name) {
     let data = this.data.assoc[name]
-
-    console.log(name)
-    console.log(this.data.assoc[name])
-    console.log(this.data.queue)
-    console.log(this.data.queue[data.genderMatch][data.ageGroup][name])
-
-
     if (data) {
-      return this.data.queue[data.genderMatch][data.ageGroup][name] || null
+      return data.room
     }
     return null
   }
@@ -172,7 +166,8 @@ class Api {
   getRandomRoomByQuery(genderMatch, ageGroup) {
     let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
     let key  = Math.floor(keys.length * Math.random())
-    return this.data.queue[genderMatch][ageGroup][keys[key]] || null
+    let name = this.data.queue[genderMatch][ageGroup][keys[key]]
+    return this.getRoomByName(name)
   }
 
   getUserById(id) {
