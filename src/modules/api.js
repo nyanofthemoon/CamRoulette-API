@@ -458,8 +458,11 @@ class Api {
       let roomName = socket.room
       if (roomName) {
         socket.room = null;
-        socket.leave(roomName)
         this.sockets.to(roomName).emit('leave', socket.id)
+        this.sockets.sockets.clients(roomName).forEach(function(s){
+          console.log(s.id + ' is leaving')
+          s.leave(roomName);
+        });
         let room = this.getRoomByName(roomName)
         if (room) {
           this.removeRoomFromAssoc(room)
