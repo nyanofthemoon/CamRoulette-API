@@ -157,8 +157,7 @@ socket.emit("update", {
   "type": "match",
   "data: {
     "step"  : "audio|video",
-    "action": "continue|end"
-    "report": false|true
+    "action": "yes|no|report"
   }
 })
 ```
