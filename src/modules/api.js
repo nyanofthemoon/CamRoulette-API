@@ -219,12 +219,34 @@ class Api {
                         that.sockets.to(name).emit('query', room.query())
                         // STATUS_VIDEO_SELECTION
                         setTimeout(function () {
-                          if (room.getSocketIds().length > 1) {
+                          let socketIds = room.getSocketIds()
+                          if (socketIds.length > 1) {
                             // STATUS_VIDEO_RESULTS
                             that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
                             room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
                             room.setTimer(0)
                             that.sockets.to(name).emit('query', room.query())
+                            if (room.hasAllPositiveResultsForStep('video')) {
+                              let users = []
+                              socketIds.forEach(function(socketId) {
+                                let user = that.getUserBySocketId(socketId)
+                                if (user) {
+                                  users.push(user)
+                                }
+                              })
+                              users.forEach(function(user) {
+                                if ('relationship' === room.getType()) {
+                                  users.forEach(function(subuser) {
+                                    user.addRelationship(subuser)
+                                  })
+                                } else {
+                                  users.forEach(function(subuser) {
+                                    user.addFriendship(subuser)
+                                  })
+                                }
+                                user.socket.emit('query', user.query())
+                              })
+                            }
                           } else {
                             room.setStatus(that.config.room.STATUS_TERMINATED)
                             that.sockets.to(name).emit('query', room.query())
@@ -418,6 +440,7 @@ class Api {
                 genderMatch: genderMatch,
                 ageGroup   : ageGroup,
                 status     : this.config.room.STATUS_WAITING,
+                type       : 'relationship',
                 timer      : 0
               })
               joined = false

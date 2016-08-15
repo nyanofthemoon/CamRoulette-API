@@ -10,6 +10,7 @@ class Room {
     this.initiator = null
     this.data = {
       name       : null,
+      type       : null,
       status     : null,
       timer      : null,
       video      : null,
@@ -40,6 +41,14 @@ class Room {
 
   getAgeGroup() {
     return this.data.ageGroup
+  }
+
+  getType() {
+    return this.data.type
+  }
+
+  setType(type) {
+    this.data.type = type
   }
 
   getStatus() {

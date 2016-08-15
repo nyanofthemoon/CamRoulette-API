@@ -13,16 +13,18 @@ class User {
       gender         : null,
       birthday       : null,
       firstName      : null,
-      orientation    : null,
       lastName       : null,
       facebookProfile: null,
       facebookPicture: null,
       locale         : null,
       timezone       : null,
-      wantedGender   : null,
+      orientation    : null,
+      contacts       : {
+        friendship  : {},
+        relationship: {}
+      },
       reports        : 0,
-      reported       : [],
-      contacts       : []
+      reported       : []
     }
   }
 
@@ -74,6 +76,28 @@ class User {
     return this.data.reported.indexOf(id) !== -1
   }
 
+  addFriendship(user) {
+    let id = user.getId()
+    if (this.getId() != id) {
+      this.data.contacts.friendship[id] = id
+    }
+  }
+
+  removeFriendship(user) {
+    delete(this.data.contacts.friendship[user.getId()])
+  }
+
+  addRelationship(user) {
+    let id = user.getId()
+    if (this.getId() != id) {
+      this.data.contacts.relationship[id] = id
+    }
+  }
+
+  removeRelationship(user) {
+    delete(this.data.contacts.relationship[user.getId()])
+  }
+
   getAgeRange() {
     let age = new Date().getFullYear() - new Date(this.data.birthday).getFullYear();
     if (age < 30) {
@@ -114,6 +138,8 @@ class User {
       'type': 'user',
       'data': this.data
     }
+    unset(struct['reports'])
+    unset(struct['reported'])
     return struct
   }
 
