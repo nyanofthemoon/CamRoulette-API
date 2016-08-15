@@ -138,8 +138,8 @@ class User {
       'type': 'user',
       'data': this.data
     }
-    unset(struct['reports'])
-    unset(struct['reported'])
+    delete(struct['reports'])
+    delete(struct['reported'])
     return struct
   }
 
