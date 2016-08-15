@@ -227,9 +227,6 @@ class Api {
                             room.setTimer(0)
                             that.sockets.to(name).emit('query', room.query())
                             if (room.hasAllPositiveResultsForStep('video')) {
-
-                              console.log('awwright')
-
                               let users = []
                               socketIds.forEach(function(socketId) {
                                 let user = that.getUserBySocketId(socketId)
@@ -237,28 +234,16 @@ class Api {
                                   users.push(user)
                                 }
                               })
-
-                              console.log('users founds ' + socketIds.join(','))
-
                               users.forEach(function(user) {
                                 if ('relationship' === room.getType()) {
                                   users.forEach(function(subuser) {
-
-                                    console.log('adding relationship for ' + user.getId() + ' to ' + subuser.getId())
-
                                     user.addRelationship(subuser)
                                   })
                                 } else {
                                   users.forEach(function(subuser) {
-
-                                    console.log('adding friendship for ' + user.getId() + ' to ' + subuser.getId())
-
                                     user.addFriendship(subuser)
                                   })
                                 }
-
-                                console.log('sending query as ' + JSON.stringify(user.query()));
-
                                 user.socket.emit('query', user.query())
                               })
                             }
