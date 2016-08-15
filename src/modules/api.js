@@ -18,25 +18,39 @@ class Api {
       users   : {},
       assoc   : {},
       queue   : {
-        'M': {
-          '18-29': {},
-          '30-49': {},
-          '50-65': {}
+        relationship: {
+          'M': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          },
+          'MM': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          },
+          'F': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          },
+          'FF': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          }
         },
-        'MM': {
-          '18-29': {},
-          '30-49': {},
-          '50-65': {}
-        },
-        'F': {
-          '18-29': {},
-          '30-49': {},
-          '50-65': {}
-        },
-        'FF': {
-          '18-29': {},
-          '30-49': {},
-          '50-65': {}
+        friendship: {
+          'M': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          },
+          'F': {
+            '18-29': {},
+            '30-49': {},
+            '50-65': {}
+          }
         }
       }
     }
@@ -135,12 +149,14 @@ class Api {
     let name = room.getName()
     let genderMatch = room.getGenderMatch()
     let ageGroup = room.getAgeGroup()
+    let type = room.getType()
     this.data.assoc[name] = {
       genderMatch: genderMatch,
       ageGroup   : ageGroup,
+      type       : type,
       room       : room
     }
-    this.data.queue[genderMatch][ageGroup][name] = name
+    this.data.queue[type][genderMatch][ageGroup][name] = name
   }
 
   getRoomByName(name) {
@@ -155,7 +171,8 @@ class Api {
     let name = room.getName()
     let genderMatch = room.getGenderMatch()
     let ageGroup = room.getAgeGroup()
-    delete(this.data.queue[genderMatch][ageGroup][name])
+    let type = room.getType()
+    delete(this.data.queue[type][genderMatch][ageGroup][name])
   }
 
   removeRoomFromAssoc(room) {
@@ -163,10 +180,10 @@ class Api {
     delete(this.data.assoc[name])
   }
 
-  getRandomRoomByQuery(genderMatch, ageGroup) {
-    let keys = Object.keys(this.data.queue[genderMatch][ageGroup])
+  getRandomRoomByQuery(genderMatch, ageGroup, type) {
+    let keys = Object.keys(this.data.queue[type][genderMatch][ageGroup])
     let key  = Math.floor(keys.length * Math.random())
-    let name = this.data.queue[genderMatch][ageGroup][keys[key]]
+    let name = this.data.queue[type][genderMatch][ageGroup][keys[key]]
     return this.getRoomByName(name)
   }
 
@@ -394,6 +411,7 @@ class Api {
             let name = data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch = user.getWantedGender()
             let ageGroup = user.getAgeRange()
+            let roomType = data.type
 
             //@TODO Remove me. This is for testing with just 2 devices//
             genderMatch = 'M'
@@ -410,7 +428,7 @@ class Api {
 
             // Cannot Join A User You Have Reported - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup)
+              let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup, roomType)
               if (tempRoom) {
                 if (!user.hasReported(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
@@ -440,7 +458,7 @@ class Api {
                 genderMatch: genderMatch,
                 ageGroup   : ageGroup,
                 status     : this.config.room.STATUS_WAITING,
-                type       : 'relationship',
+                type       : roomType,
                 timer      : 0
               })
               joined = false
@@ -451,11 +469,11 @@ class Api {
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
-              this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+              this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
               this.runTimer(room)
             } else {
-              this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + genderMatch + '/' + ageGroup)
+              this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
               // Reported Users Have To Wait WAIT_TIME_PER_USER_REPORT millis per reports before room queryable
               let that = this
