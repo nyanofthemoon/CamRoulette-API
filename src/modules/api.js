@@ -180,6 +180,7 @@ class Api {
     delete(this.data.assoc[name])
   }
 
+  //@TODO Fix genderMatch to work with type friendship also in join method
   getRandomRoomByQuery(genderMatch, ageGroup, type) {
     let keys = Object.keys(this.data.queue[type][genderMatch][ageGroup])
     let key  = Math.floor(keys.length * Math.random())
