@@ -22,34 +22,46 @@ class Api {
           'M': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
           },
           'MM': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
           },
           'F': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
           },
           'FF': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
+          },
+          'AA': {
+            '18-29': {},
+            '30-49': {},
+            '50-64': {},
+            '65-99': {}
           }
         },
         friendship: {
           'M': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
           },
           'F': {
             '18-29': {},
             '30-49': {},
-            '50-65': {}
+            '50-64': {},
+            '65-99': {}
           }
         }
       }
@@ -315,8 +327,7 @@ class Api {
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
-
-      //socket.on('message', function(data) { that.message(data, socket) })
+      socket.on('message', function(data) { that.message(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to private events ', e)
@@ -334,27 +345,30 @@ class Api {
   login(data, socket) {
     try {
       let user = this.getUserById(data.data.email)
+      let newUser = false
       if (!user) {
         user = new User(this.config)
+        newUser = true
       }
 
-      let gender;
-      if ('male' === data.data.gender) {
-        gender = 'M'
-      } else {
-        gender = 'F'
-      }
       let userData = {
-        email: data.data.email,
-        gender: gender,
-        orientation: 'straight',
-        birthday: data.data.birthday,
-        firstName: data.data.first_name,
-        lastName: data.data.last_name,
         locale: data.data.locale,
         timezone: data.data.timezone,
         facebookProfile: data.data.link,
         facebookPicture: data.data.picture.data.url
+      }
+      if (newUser) {
+        userData.email = data.data.email
+        userData.birthday = data.data.birthday
+        userData.firstName = data.data.first_name
+        userData.lastName = data.data.last_name
+        userData.orientation = 'O'
+        userData.friendship  = 'S'
+        if ('male' === data.data.gender) {
+          userData.gender = 'M'
+        } else {
+          userData.gender = 'F'
+        }
       }
 
       user.initialize(socket, this.source, userData)

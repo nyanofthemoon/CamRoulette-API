@@ -2,6 +2,17 @@
 
 let Logger = require('./logger')
 
+/*
+Friendship
+ S: 'Same Gender',
+ A: 'Any Gender'
+ O: 'Opposite Gender',
+Orientation
+  O: 'Opposite Gender',
+  S: 'Same Gender',
+  A: 'Any Gender'
+*/
+
 class User {
 
   constructor(config) {
@@ -18,7 +29,10 @@ class User {
       facebookPicture: null,
       locale         : null,
       timezone       : null,
+      friendship     : null,
       orientation    : null,
+      latitude       : null,
+      longitude      : null,
       contacts       : {
         friendship  : {},
         relationship: {}
@@ -104,8 +118,10 @@ class User {
       return '18-29'
     } else if (age < 50) {
       return '30-49'
+    } else if (age < 65) {
+      return '50-64'
     } else {
-      return '50-65'
+      return '65-99'
     }
   }
 
@@ -114,12 +130,17 @@ class User {
   }
 
   getWantedGender() {
-    if ('gay' === this.data.orientation) {
+    // Same Gender - Homosexual
+    if ('S' === this.data.orientation) {
       if ('M' === this.data.gender) {
         return 'MM'
       } else {
         return 'FF'
       }
+    // Any Gender - Bisexual
+    } else if ('A' === this.data.orientation) {
+      return 'AA'
+    // Opposite Gender - Straight
     } else {
       if ('M' === this.data.gender) {
         return 'F'
