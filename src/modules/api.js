@@ -451,34 +451,19 @@ class Api {
 
   join(data, socket, callback) {
     try {
-
-      console.log('*** A')
-
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-
-        console.log('*** B')
-
         this.leave(socket)
-
-        console.log('*** C')
-
         let roomName = null
         let room     = null
         switch(data.type) {
 
           default:
           case 'match':
-
-
-            console.log('*** D')
-
             let name = data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let ageGroup = user.getAgeRange()
             let roomType = data.type
             let genderMatch;
-
-            console.log('*** E')
 
             // @NOTE TO DO
             // In the final screen you can either confirm, reject or report(thats a reject)
@@ -494,8 +479,6 @@ class Api {
             } else {
               genderMatch = user.getWantedGenderFriend()
             }
-
-            console.log('*** F')
 
             //@TODO Remove me. This is for testing with just 2 devices//
             genderMatch   = 'AA'
@@ -517,8 +500,6 @@ class Api {
               }
             }
 
-            console.log('*** G')
-
             roomName = name
             let joined = true
             if (!room) {
@@ -534,34 +515,16 @@ class Api {
               })
               joined = false
             } else {
-              console.log(room)
               roomName = room.getName()
-              console.log('*** H')
             }
-
-            console.log('*** 0')
 
             socket.join(roomName)
             socket.room = roomName
             if (joined) {
-
-              console.log('*** 1')
-
               this.removeRoomFromQueue(room)
-
-              console.log('*** 2')
-
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
-
-              console.log('*** 3')
-
               callback(room.getSocketIds())
-
-              console.log('*** 4')
-
               this.runTimer(room)
-
-              console.log('*** 5')
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
