@@ -204,11 +204,13 @@ class Api {
 
   _getNextDateRoomByQuery(genderMatch, ageGroup) {
     let name = Object.keys(this.data.queue['relationship'][genderMatch][ageGroup])[0]
+    console.log('_getNextDateRoomByQuery ' + name)
     return this.getRoomByName(name)
   }
 
   _getNextFriendRoomByQuery(genderMatch, ageGroup) {
     let name = Object.keys(this.data.queue['friendship'][genderMatch][ageGroup])[0]
+    console.log('_getNextFriendRoomByQuery ' + name)
     return this.getRoomByName(name)
   }
 
