@@ -20,25 +20,54 @@ class User {
     this.socket = null
     this.source = null
     this.data = {
-      email          : null,
-      gender         : null,
-      birthday       : null,
-      firstName      : null,
-      lastName       : null,
-      facebookProfile: null,
-      facebookPicture: null,
-      locale         : null,
-      timezone       : null,
-      friendship     : null,
-      orientation    : null,
-      latitude       : null,
-      longitude      : null,
-      contacts       : {
-        friendship  : {},
-        relationship: {}
+      email    : null,
+      firstname: null,
+      lastname : null,
+      providers: {
+        facebook: {
+          url    : null,
+          picture: null
+        }
       },
-      reports        : 0,
-      reported       : []
+      profile: {
+        nickname   : null,
+        gender     : null,
+        birthday   : null,
+        orientation: null,
+        friendship : null,
+        headline   : null,
+        bio        : null,
+        career     : null,
+        diet       : null, // unhealthy, healthy, vegetarian, vegan, intolerant, other
+        picture    : null,
+        astrological: {
+          chinese   : null,
+          zodiac    : null,
+          birthstone: null,
+          planet    : null,
+          element   : null
+        }
+      },
+      personality: {
+        // http://www.livescience.com/41313-personality-traits.html
+      },
+      location: {
+        city     : null,
+        country  : null,
+        latitude : null,
+        longitude: null,
+        locale   : null,
+        timezone : null
+      },
+      contacts: {
+        friendship  : {},
+        relationship: {},
+        blocked     : {}
+      },
+      reports: {
+        reported  : 0,
+        reportedby: 0
+      }
     }
   }
 
@@ -46,8 +75,14 @@ class User {
     this.socket = socket
     this.source = source
     let that = this
-    Object.keys(data).forEach(function (key) {
-      that.data[key] = data[key]
+    Object.keys(data).forEach(function(key) {
+      if (typeof data[key] !== 'object') {
+        that.data[key] = data[key]
+      } else {
+        Object.keys(data[key]).forEach(function(subkey) {
+          that.data[key][subkey] = data[key][subkey]
+        })
+      }
     })
   }
 
@@ -70,24 +105,20 @@ class User {
     return this.data.email
   }
 
-  getFirstName() {
-    return this.data.firstName
+  getNickname() {
+    return this.data.profile.nickname
   }
 
   getSocketId() {
     return this.socket.id
   }
 
-  getEmail() {
-    return this.data.email
-  }
-
   getReports() {
-    return this.data.reports
+    return this.data.reports.reported
   }
 
-  hasReported(id) {
-    return this.data.reported.indexOf(id) !== -1
+  hasBlocked(id) {
+    return this.data.contacts.blocked.indexOf(id) !== -1
   }
 
   addFriendship(user) {
@@ -113,7 +144,7 @@ class User {
   }
 
   getAgeRange() {
-    let age = new Date().getFullYear() - new Date(this.data.birthday).getFullYear();
+    let age = new Date().getFullYear() - new Date(this.data.profile.birthday).getFullYear();
     if (age < 30) {
       return '18-29'
     } else if (age < 50) {
@@ -125,42 +156,75 @@ class User {
     }
   }
 
-  getGender() {
-    return this.data.gender
+  getDatingOrientation() {
+    return this.data.profile.orientation
   }
 
-  getWantedGender() {
-    // Same Gender - Homosexual
-    if ('S' === this.data.orientation) {
-      if ('M' === this.data.gender) {
-        return 'MM'
-      } else {
-        return 'FF'
-      }
-    // Any Gender - Bisexual
-    } else if ('A' === this.data.orientation) {
-      return 'AA'
-    // Opposite Gender - Straight
-    } else {
-      if ('M' === this.data.gender) {
+  getFriendshipOrientation() {
+    return this.data.profile.friendship
+  }
+
+  getGender() {
+    return this.data.profile.gender
+  }
+
+  getWantedGenderFriend() {
+    // Same Gender
+    if ('S' === this.getFriendshipOrientation()) {
+      return this.getGender()
+    // Opposite Gender
+    } else if ('O' === this.getFriendshipOrientation()) {
+      if ('M' === this.getGender()) {
         return 'F'
       } else {
         return 'M'
       }
+    // Any Gender
+    } else {
+      if (Math.floor((Math.random() * 100)) < 50) {
+        return 'M'
+      } else {
+        return 'F'
+      }
     }
   }
 
-  canRead(room) {
-    return room.hasUser(this)
+  getWantedGenderDate() {
+    // Same Gender
+    if ('S' === this.getDatingOrientation()) {
+      if ('M' === this.getGender()) {
+        return 'MM'
+      } else {
+        return 'FF'
+      }
+    // Opposite Gender
+    } else if ('O' === this.getDatingOrientation()) {
+      if ('M' === this.getGender()) {
+        return 'F'
+      } else {
+        return 'M'
+      }
+    // Any Gender
+    } else {
+      return 'AA'
+    }
   }
 
-  query() {
+  query(self) {
     var struct = {
       'type': 'user',
       'data': this.data
     }
-    delete(struct['reports'])
-    delete(struct['reported'])
+
+    delete(struct.data.email)
+    delete(struct.data.firstname)
+    delete(struct.data.lastname)
+    if (!self) {
+      delete(struct.data.providers)
+      delete(struct.data.contacts)
+      delete(struct.data.reports)
+    }
+
     return struct
   }
 

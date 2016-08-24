@@ -5,6 +5,8 @@ let Redis = require('./redis')
 let Room = require('./room')
 let User = require('./user')
 
+let Astrology = require('./../helpers/astrology')
+
 class Api {
 
   constructor(config) {
@@ -192,11 +194,21 @@ class Api {
     delete(this.data.assoc[name])
   }
 
-  //@TODO Fix genderMatch to work with type friendship also in join method
-  getRandomRoomByQuery(genderMatch, ageGroup, type) {
-    let keys = Object.keys(this.data.queue[type][genderMatch][ageGroup])
-    let key  = Math.floor(keys.length * Math.random())
-    let name = this.data.queue[type][genderMatch][ageGroup][keys[key]]
+  getNextRoomByQuery(genderMatch, ageGroup, type) {
+    if ('relationship' === type) {
+      return this._getNextDateRoomByQuery(genderMatch, ageGroup)
+    } else {
+      return this._getNextFriendRoomByQuery(genderMatch, ageGroup)
+    }
+  }
+
+  _getNextDateRoomByQuery(genderMatch, ageGroup) {
+    let name = Object.keys(this.data.queue['relationship'][genderMatch][ageGroup])[0]
+    return this.getRoomByName(name)
+  }
+
+  _getNextFriendRoomByQuery(genderMatch, ageGroup) {
+    let name = Object.keys(this.data.queue['friendship'][genderMatch][ageGroup])[0]
     return this.getRoomByName(name)
   }
 
@@ -352,22 +364,43 @@ class Api {
       }
 
       let userData = {
-        locale: data.data.locale,
-        timezone: data.data.timezone,
-        facebookProfile: data.data.link,
-        facebookPicture: data.data.picture.data.url
+        location: {
+          locale   : data.data.locale,
+          timezone : data.data.timezone,
+          city     : data.data.city,
+          country  : data.data.country,
+          latitude : data.data.latitude,
+          longitude: data.data.longitude
+        }
       }
       if (newUser) {
-        userData.email = data.data.email
-        userData.birthday = data.data.birthday
-        userData.firstName = data.data.first_name
-        userData.lastName = data.data.last_name
-        userData.orientation = 'O'
-        userData.friendship  = 'S'
+        userData.email     = data.data.email
+        userData.firstname = data.data.first_name
+        userData.lastname  = data.data.last_name
+        userData.providers = {
+          facebook: {
+            url    : data.data.link,
+            picture: data.data.picture.data.url
+          }
+        }
+        userData.profile = {
+          nickname   : data.data.first_name,
+          birthday   : data.data.birthday,
+          orientation: 'O',
+          friendship : 'S',
+          picture    : data.data.picture.data.url,
+          astrological: {
+            chinese   : Astrology.calculateChinese(data.data.birthday),
+            zodiac    : Astrology.calculateZodiac(data.data.birthday),
+            birthstone: Astrology.calculateBirthstone(data.data.birthday),
+            planet    : Astrology.calculatePlanet(data.data.birthday),
+            element   : Astrology.calculateElement(data.data.birthday)
+          }
+        }
         if ('male' === data.data.gender) {
-          userData.gender = 'M'
+          userData.profile.gender = 'M'
         } else {
-          userData.gender = 'F'
+          userData.profile.gender = 'F'
         }
       }
 
@@ -375,8 +408,8 @@ class Api {
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
-      socket.emit('query', user.query())
-      this.logger.info('[LOGIN] ' + user.getFirstName() + '@' + user.getSocketId() + ' looking for ' + user.getWantedGender() + ':' + user.getAgeRange(), socket.id)
+      socket.emit('query', user.query(true))
+      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
     }
@@ -387,7 +420,11 @@ class Api {
       let info = null
       switch (data.type) {
         case 'user':
-          info = this.getUserBySocketId(socket.id).query()
+          if (!data.id) {
+            info = this.getUserBySocketId(socket.id).query(true)
+          } else {
+            info = this.getUserById(data.id).query(false)
+          }
           break
         case 'room':
           let user = this.getUserBySocketId(socket.id)
@@ -424,14 +461,9 @@ class Api {
           default:
           case 'match':
             let name = data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
-            let genderMatch = user.getWantedGender()
             let ageGroup = user.getAgeRange()
             let roomType = data.type
-
-            //@TODO Remove me. This is for testing with just 2 devices//
-            genderMatch = 'M'
-            ageGroup    = '18-29'
-            ////////////////////////////////////////////////////////////
+            let genderMatch;
 
             // @NOTE TO DO
             // In the final screen you can either confirm, reject or report(thats a reject)
@@ -442,12 +474,23 @@ class Api {
             // You should be able to report a user if they eagerly terminated the connection on either audio or video
 
             // Cannot Join A User You Have Reported - X Retries
+            if ('relationship' === roomType) {
+              genderMatch = user.getWantedGenderDate()
+            } else {
+              genderMatch = user.getWantedGenderFriend()
+            }
+
+            //@TODO Remove me. This is for testing with just 2 devices//
+            genderMatch   = 'M'
+            ageGroup      = '18-29'
+            ////////////////////////////////////////////////////////////
+
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              let tempRoom = this.getRandomRoomByQuery(genderMatch, ageGroup, roomType)
+              let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType)
               if (tempRoom) {
-                if (!user.hasReported(tempRoom.getInitiator())) {
+                if (!user.hasBlocked(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
-                  if (!initiator.hasReported(user.getId())) {
+                  if (!initiator.hasBlocked(user.getId())) {
                     i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                     room = tempRoom
                   }
@@ -540,7 +583,7 @@ class Api {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
         socket.to(socket.room).emit('message', {
-          name   : user.getFirstName(),
+          name   : user.getNickname(),
           message: data
         })
       }
