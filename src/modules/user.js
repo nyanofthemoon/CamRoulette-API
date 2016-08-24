@@ -118,7 +118,10 @@ class User {
   }
 
   hasBlocked(id) {
-    return this.data.contacts.blocked.indexOf(id) !== -1
+    if (this.data.contacts.blocked[id]) {
+      return true
+    }
+    return false
   }
 
   addFriendship(user) {
