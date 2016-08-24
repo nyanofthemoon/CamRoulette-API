@@ -481,7 +481,7 @@ class Api {
             }
 
             //@TODO Remove me. This is for testing with just 2 devices//
-            genderMatch   = 'M'
+            genderMatch   = 'AA'
             ageGroup      = '18-29'
             ////////////////////////////////////////////////////////////
 
@@ -503,12 +503,6 @@ class Api {
             roomName = name
             let joined = true
             if (!room) {
-              genderMatch = user.getGender()
-
-              //@TODO Remove me. This is for testing with just 2 devices//
-              genderMatch = 'M'
-              ////////////////////////////////////////////////////////////
-
               room = new Room(this.config)
               room.setInitiator(user.getId())
               room.initialize(this.sockets, {
