@@ -204,13 +204,11 @@ class Api {
 
   _getNextDateRoomByQuery(genderMatch, ageGroup) {
     let name = Object.keys(this.data.queue['relationship'][genderMatch][ageGroup])[0]
-    console.log('_getNextDateRoomByQuery ' + name)
     return this.getRoomByName(name)
   }
 
   _getNextFriendRoomByQuery(genderMatch, ageGroup) {
     let name = Object.keys(this.data.queue['friendship'][genderMatch][ageGroup])[0]
-    console.log('_getNextFriendRoomByQuery ' + name)
     return this.getRoomByName(name)
   }
 
@@ -519,13 +517,30 @@ class Api {
             } else {
               roomName = room.getName()
             }
+
+            console.log('*** 0')
+
             socket.join(roomName)
             socket.room = roomName
             if (joined) {
+
+              console.log('*** 1')
+
               this.removeRoomFromQueue(room)
+
+              console.log('*** 2')
+
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
+
+              console.log('*** 3')
+
               callback(room.getSocketIds())
+
+              console.log('*** 4')
+
               this.runTimer(room)
+
+              console.log('*** 5')
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
