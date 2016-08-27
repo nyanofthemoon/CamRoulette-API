@@ -460,9 +460,9 @@ class Api {
 
           default:
           case 'match':
-            let name = data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let ageGroup = user.getAgeRange()
             let roomType = data.type
+            let name     = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch;
 
             // @NOTE TO DO
