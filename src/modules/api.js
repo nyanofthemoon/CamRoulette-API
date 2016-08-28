@@ -22,48 +22,48 @@ class Api {
       queue   : {
         relationship: {
           'M': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           },
           'MM': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           },
           'F': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           },
           'FF': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           },
           'AA': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           }
         },
         friendship: {
           'M': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           },
           'F': {
-            '18-29': {},
-            '30-49': {},
-            '50-64': {},
-            '65-99': {}
+            '18-29': new Map(),
+            '30-49': new Map(),
+            '50-64': new Map(),
+            '65-99': new Map()
           }
         }
       }
@@ -170,7 +170,7 @@ class Api {
       type       : type,
       room       : room
     }
-    this.data.queue[type][genderMatch][ageGroup][name] = name
+    this.data.queue[type][genderMatch][ageGroup].set(name, name)
   }
 
   getRoomByName(name) {
@@ -186,7 +186,7 @@ class Api {
     let genderMatch = room.getGenderMatch()
     let ageGroup = room.getAgeGroup()
     let type = room.getType()
-    delete(this.data.queue[type][genderMatch][ageGroup][name])
+    this.data.queue[type][genderMatch][ageGroup].delete(name)
   }
 
   removeRoomFromAssoc(room) {
@@ -203,13 +203,19 @@ class Api {
   }
 
   _getNextDateRoomByQuery(genderMatch, ageGroup) {
-    let name = Object.keys(this.data.queue['relationship'][genderMatch][ageGroup])[0]
-    return this.getRoomByName(name)
+    let match = this.data.queue['relationship'][genderMatch][ageGroup].keys().next()
+    if (match) {
+      return this.getRoomByName(match.value)
+    }
+    return null
   }
 
   _getNextFriendRoomByQuery(genderMatch, ageGroup) {
-    let name = Object.keys(this.data.queue['friendship'][genderMatch][ageGroup])[0]
-    return this.getRoomByName(name)
+    let match = this.data.queue['friendship'][genderMatch][ageGroup].keys().next()
+    if (match) {
+      return this.getRoomByName(match.value)
+    }
+    return null
   }
 
   getUserById(id) {
@@ -465,13 +471,13 @@ class Api {
             let name     = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch;
 
-            // Cannot Join A User You Have Reported - X Retries
             if ('relationship' === roomType) {
               genderMatch = user.getWantedGenderDate()
             } else {
               genderMatch = user.getWantedGenderFriend()
             }
 
+            // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
               let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType)
               if (tempRoom) {
