@@ -453,8 +453,6 @@ class Api {
     try {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-
-        console.log('1')
         this.leave(socket)
         let roomName = null
         let room     = null
@@ -462,23 +460,10 @@ class Api {
 
           default:
           case 'match':
-
-            console.log('2')
-
             let ageGroup = user.getAgeRange()
             let roomType = data.type
             let name     = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch;
-
-            console.log('3')
-
-            // @NOTE TO DO
-            // In the final screen you can either confirm, reject or report(thats a reject)
-            // If a user has already reported 10 users, the next report will still be added to their reported array
-            // but the reports count of the reported user will not be incremented
-            // If the two people report eachother, they will be added to their reported array
-            // but their reports count will not be incremented
-            // You should be able to report a user if they eagerly terminated the connection on either audio or video
 
             // Cannot Join A User You Have Reported - X Retries
             if ('relationship' === roomType) {
@@ -486,8 +471,6 @@ class Api {
             } else {
               genderMatch = user.getWantedGenderFriend()
             }
-
-            console.log('4')
 
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
               let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType)
@@ -504,14 +487,9 @@ class Api {
               }
             }
 
-            console.log('5')
-
             roomName = name
             let joined = true
             if (!room) {
-
-              console.log('6A')
-
               room = new Room(this.config)
               room.setInitiator(user.getId())
               room.initialize(this.sockets, {
@@ -524,40 +502,23 @@ class Api {
               })
               joined = false
             } else {
-
-              console.log('6B')
-
               roomName = room.getName()
             }
 
             socket.join(roomName)
-
-            console.log('7')
-
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
-
-              console.log('8A')
-
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
-
-              console.log('8B')
-
               this.runTimer(room)
-              console.log('8C')
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
-
-              console.log('8A')
               socket.emit('query', room.query())
-              console.log('8B')
               // Reported Users Have To Wait WAIT_TIME_PER_USER_REPORT millis per reports before room queryable
               let that = this
               setTimeout(function() {
                 that.addRoom(room)
-                console.log('8C')
               }, (user.getReports() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
             }
             break;
@@ -613,6 +574,13 @@ class Api {
     }
   }
 
+  // @NOTE TO DO
+  // In the final screen you can either confirm, reject or report(thats a reject)
+  // If a user has already reported 10 users, the next report will still be added to their reported array
+  // but the reports count of the reported user will not be incremented
+  // If the two people report eachother, they will be added to their reported array
+  // but their reports count will not be incremented
+  // You should be able to report a user if they eagerly terminated the connection on either audio or video
   update(data, socket) {
     try {
       let info = null
