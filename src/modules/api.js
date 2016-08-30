@@ -595,7 +595,7 @@ class Api {
             let room = this.getRoomByName(socket.room)
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
-              info = 'Updated for ' + room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
+              info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
             }
           break
         default:
