@@ -16,6 +16,10 @@ class Room {
       video      : null,
       genderMatch: null,
       ageGroup   : null,
+      scores     : {
+        audio: 0,
+        video: 0
+      },
       results    : {
         audio: {},
         video: {}
@@ -75,19 +79,38 @@ class Room {
     return this.initiator
   }
 
-  hasAllPositiveResultsForStep(step) {
-    let match = 0
-    let that = this
-    Object.keys(this.data.results[step]).map(function(key) {
-      if ('yes' === that.data.results[step][key]) {
-        match++
-      }
-    });
-    return (2 === match)
+  hasPositiveResultForStep(step) {
+    if ('audio' === step) {
+      return ( this.data.scores.audio >= 1 )
+    } else {
+      return ( this.data.scores.video >= 2 )
+    }
   }
 
-  setResults(socket, step, action) {
-    this.data.results[step][socket.id] = action
+  _getFeelingScore(feeling) {
+    switch(feeling) {
+      case 'bored':
+      case 'offended':
+      case 'angry':
+        return -1
+      case 'charmed':
+      case 'inspired':
+      case 'entertained':
+      case 'excited':
+        return 1
+      case 'undecided':
+      default:
+        return 0
+    }
+  }
+
+  setResults(socket, step, feeling) {
+    let update = 0;
+    if (this.data.results[step][socket.id]) {
+      update = this._getFeelingScore(this.data.results[step][socket.id]) * -1
+    }
+    this.data.scores[step] = this.data.scores[step] + update + this._getFeelingScore(feeling)
+    this.data.results[step][socket.id] = feeling
   }
 
   getSockets() {

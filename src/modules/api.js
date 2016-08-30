@@ -249,7 +249,7 @@ class Api {
               room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
               room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
               that.sockets.to(name).emit('query', room.query())
-              if (room.hasAllPositiveResultsForStep('audio')) {
+              if (room.hasPositiveResultForStep('audio')) {
                 // STATUS_AUDIO_RESULTS
                 setTimeout(function () {
                   if (room.getSocketIds().length > 1) {
@@ -274,7 +274,7 @@ class Api {
                             room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
                             room.setTimer(0)
                             that.sockets.to(name).emit('query', room.query())
-                            if (room.hasAllPositiveResultsForStep('video')) {
+                            if (room.hasPositiveResultForStep('video')) {
                               let users = []
                               socketIds.forEach(function(socketId) {
                                 let user = that.getUserBySocketId(socketId)
@@ -594,8 +594,8 @@ class Api {
         case 'match':
             let room = this.getRoomByName(socket.room)
             if (room) {
-              room.setResults(socket, data.data.step, data.data.action)
-              info = 'Updated for ' + room.getName() + ' with ' + data.data.step + ':' + data.data.action
+              room.setResults(socket, data.data.step, data.data.feeling)
+              info = 'Updated for ' + room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
             }
           break
         default:
