@@ -233,7 +233,7 @@ class Api {
     return this.data.users[this.data.sessions[id]] || null
   }
 
-  setLastMatch(room) {
+  setLastMatch(room, step) {
     let newMatchData = {
       lastUpdated  : new Date().getTime()
     }
@@ -241,13 +241,13 @@ class Api {
     newMatchData.leftGender = creator.getGender()
     creator = creator.getSocketId()
     let that = this
-    room.data.results.forEach(function(socketId) {
+    room.data.results[step].forEach(function(socketId) {
       if (socketId != creator) {
         let joiner = that.getUserBySocketId(socketId)
         newMatchData.rightGender   = joiner.getGender()
-        newMatchData.rightEmoticon = room.data.results[socketId]
+        newMatchData.rightEmoticon = room.data.results[step][socketId]
       } else {
-        newMatchData.leftEmoticon = room.data.results[socketId]
+        newMatchData.leftEmoticon = room.data.results[step][socketId]
       }
     })
     this.data.lastMatch = newMatchData
@@ -295,6 +295,8 @@ class Api {
                     room.setVideo(true)
                     room.setTimer(that.config.room.WAIT_TIME_VIDEO_CONVERSATION)
                     that.sockets.to(name).emit('query', room.query())
+                    that.setLastMatch(room, 'audio')
+                    that.sockets.to('matches').emit('notification', that.getLastMatch())
                     // STATUS_VIDEO
                     setTimeout(function () {
                       if (room.getSocketIds().length > 1) {
@@ -332,7 +334,7 @@ class Api {
                                 user.socket.emit('query', user.query())
                               })
                             }
-                            that.setLastMatch(room)
+                            that.setLastMatch(room, 'video')
                             that.sockets.to('matches').emit('notification', that.getLastMatch())
                           } else {
                             room.setStatus(that.config.room.STATUS_TERMINATED)
