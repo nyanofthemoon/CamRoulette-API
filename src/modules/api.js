@@ -66,6 +66,13 @@ class Api {
             '65-99': new Map()
           }
         }
+      },
+      lastMatch: {
+        leftEmoticon : null,
+        leftGender   : null,
+        rightEmoticon: null,
+        rightGender  : null,
+        lastUpdated  : new Date().getTime()
       }
     }
   }
@@ -226,6 +233,40 @@ class Api {
     return this.data.users[this.data.sessions[id]] || null
   }
 
+  setLastMatch(room) {
+    let newMatchData = {
+      lastUpdated  : new Date().getTime(),
+      leftGender   : 'M',
+      leftEmoticon : 'undecided',
+      rightGender  : 'F',
+      rightEmoticon: 'undecided'
+    }
+    let creator = this.getUserById(room.getInitiator())
+    newMatchData.leftGender = creator.getGender()
+    creator = creator.getSocketId()
+    let that = this
+    room.data.results.forEach(function(socketId) {
+      if (socketId != creator) {
+        let joiner = that.getUserBySocketId(socketId)
+        newMatchData.rightGender   = joiner.getGender()
+        newMatchData.rightEmoticon = room.data.results[socketId]
+      } else {
+        newMatchData.leftEmoticon = room.data.results[socketId]
+      }
+    })
+    this.data.lastMatch = newMatchData
+  }
+
+  getLastMatch() {
+    return {
+      type: 'room',
+      data: {
+        'room': 'matches',
+        'data': this.data.lastMatch
+      }
+    }
+  }
+
   runTimer(room) {
     try {
       let that = this
@@ -295,6 +336,8 @@ class Api {
                                 user.socket.emit('query', user.query())
                               })
                             }
+                            that.setLastMatch(room)
+                            that.sockets.to('matches').emit('notification', that.getLastMatch())
                           } else {
                             room.setStatus(that.config.room.STATUS_TERMINATED)
                             that.sockets.to(name).emit('query', room.query())
@@ -346,6 +389,8 @@ class Api {
       socket.on('update', function(data) { that.update(data, socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
       socket.on('message', function(data) { that.message(data, socket) })
+      socket.on('subscribe', function(data) { that.subscribe(data, socket) })
+      socket.on('unsubscribe', function(data) { that.unsubscribe(data, socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to private events ', e)
@@ -521,6 +566,7 @@ class Api {
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
+              socket.emit('notification', this.getLastMatch())
               // Reported Users Have To Wait WAIT_TIME_PER_USER_REPORT millis per reports before room queryable
               let that = this
               setTimeout(function() {
@@ -606,6 +652,22 @@ class Api {
       }
     } catch (e) {
       this.logger.error('[UPDATE] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  subscribe(data, socket) {
+    try {
+      socket.join(data.room)
+    } catch (e) {
+      this.logger.error('An unknown socket error has occured', e)
+    }
+  }
+
+  unsubscribe(data, socket) {
+    try {
+      socket.leave(data.room)
+    } catch (e) {
+      this.logger.error('An unknown socket error has occured', e)
     }
   }
 
