@@ -68,10 +68,10 @@ class Api {
         }
       },
       lastMatch: {
-        leftEmoticon : null,
-        leftGender   : null,
-        rightEmoticon: null,
-        rightGender  : null,
+        leftEmoticon : 'undecided',
+        leftGender   : 'M',
+        rightEmoticon: 'undecided',
+        rightGender  : 'F',
         lastUpdated  : new Date().getTime()
       }
     }
@@ -235,11 +235,7 @@ class Api {
 
   setLastMatch(room) {
     let newMatchData = {
-      lastUpdated  : new Date().getTime(),
-      leftGender   : 'M',
-      leftEmoticon : 'undecided',
-      rightGender  : 'F',
-      rightEmoticon: 'undecided'
+      lastUpdated  : new Date().getTime()
     }
     let creator = this.getUserById(room.getInitiator())
     newMatchData.leftGender = creator.getGender()
