@@ -227,6 +227,11 @@ class User {
       delete(struct.data.reports)
     }
 
+
+
+    console.log(struct)
+
+
     return struct
   }
 
