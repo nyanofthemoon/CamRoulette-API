@@ -228,7 +228,7 @@ class User {
     }
 
 
-
+    console.log('QUERY AS ' + self)
     console.log(struct)
 
 
