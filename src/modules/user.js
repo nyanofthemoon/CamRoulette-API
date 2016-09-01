@@ -5,8 +5,6 @@ let Logger = require('./logger')
 let deepExtend = require('deep-extend')
 let MD5 = require('crypto-js/md5')
 
-let Config = require('./../config')
-
 /*
 Friendship
  S: 'Same Gender',
@@ -97,7 +95,7 @@ class User {
   }
 
   static generateId(email) {
-    return MD5(email, Config.user.salt)
+    return MD5(email)
   }
 
   getId() {
