@@ -76,7 +76,12 @@ class User {
   initialize(socket, source, data) {
     this.socket = socket
     this.source = source
-    this.data   = merge(this.data, data)
+    let merged  = merge(this.data, data)
+
+
+    console.log(merged)
+
+    this.data   = merged
   }
 
   // Returns a promise
