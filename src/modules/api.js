@@ -456,12 +456,6 @@ class Api {
       user.initialize(socket, this.source, userData)
       this.addSession(socket, user)
       this.addUser(user)
-
-
-
-      user.addFriendship(user)
-
-
       this.bindSocketToPrivateEvents(socket)
       socket.emit('query', user.query(true))
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)

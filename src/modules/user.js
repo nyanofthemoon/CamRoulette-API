@@ -2,6 +2,8 @@
 
 let Logger = require('./logger')
 
+let merge = require('deepmerge')
+
 /*
 Friendship
  S: 'Same Gender',
@@ -74,28 +76,7 @@ class User {
   initialize(socket, source, data) {
     this.socket = socket
     this.source = source
-    let that = this
-    Object.keys(data).forEach(function(key) {
-      if (typeof data[key] !== 'object') {
-        that.data[key] = data[key]
-      } else {
-        Object.keys(data[key]).forEach(function(subkey) {
-          if (typeof data[key][subkey] !== 'object') {
-            that.data[key][subkey] = data[key][subkey]
-          } else {
-            Object.keys(data[key][subkey]).forEach(function(subsubkey) {
-              if (typeof data[key][subkey][subsubkey] !== 'object') {
-                that.data[key][subkey][subsubkey] = data[key][subkey][subsubkey]
-              } else {
-                Object.keys(data[key][subkey][subsubkey]).forEach(function(subsubsubkey) {
-                  that.data[key][subkey][subsubkey][subsubsubkey] = data[key][subkey][subsubkey][subsubsubkey]
-                })
-              }
-            })
-          }
-        })
-      }
-    })
+    this.data   = merge(this.data, data)
   }
 
   // Returns a promise
@@ -138,9 +119,9 @@ class User {
 
   addFriendship(user) {
     let id = user.getId()
-    //if (this.getId() != id) {
+    if (this.getId() != id) {
       this.data.contacts.friendship[id] = id
-   // }
+    }
   }
 
   removeFriendship(user) {
