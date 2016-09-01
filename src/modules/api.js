@@ -483,6 +483,8 @@ class Api {
 
       console.log('9')
 
+      console.log(user.query(true))
+
       socket.emit('query', user.query(true))
 
       console.log('10')
