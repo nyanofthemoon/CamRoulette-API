@@ -223,14 +223,24 @@ class User {
       self: self,
       data: this.data
     }
+
+    console.log('A')
+
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
+
+    console.log('B')
+
+
     if (false === self) {
       delete(struct.data.providers)
       delete(struct.data.contacts)
       delete(struct.data.reports)
     }
+
+    console.log('C')
+
     return struct
   }
 
