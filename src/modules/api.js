@@ -473,6 +473,7 @@ class Api {
           if (!data.id) {
             info = this.getUserBySocketId(socket.id).query(true)
           } else {
+            data.type = data.type + ':contact'
             info = this.getUserById(data.id).query(false)
           }
           break
