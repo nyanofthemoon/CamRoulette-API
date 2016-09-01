@@ -405,24 +405,13 @@ class Api {
 
   login(data, socket) {
     try {
-
-      console.log('1')
-
       let userId = User.generateId(data.data.email)
-
-      console.log('2 ' + userId)
-
       let user = this.getUserById(userId)
-
-      console.log('3')
-
       let newUser = false
       if (!user) {
         user = new User(this.config)
         newUser = true
       }
-
-      console.log('4')
 
       let userData = {
         location: {
@@ -465,30 +454,11 @@ class Api {
         }
       }
 
-      console.log('5')
-
       user.initialize(socket, this.source, userData)
-
-      console.log('6')
-
       this.addSession(socket, user)
-
-      console.log('7')
-
       this.addUser(user)
-
-      console.log('8')
-
       this.bindSocketToPrivateEvents(socket)
-
-      console.log('9')
-
-      console.log(user.query(true))
-
       socket.emit('query', user.query(true))
-
-      console.log('10')
-
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)

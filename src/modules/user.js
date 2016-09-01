@@ -95,7 +95,7 @@ class User {
   }
 
   static generateId(email) {
-    return MD5(email)
+    return MD5(email).toString()
   }
 
   getId() {
