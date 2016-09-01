@@ -84,7 +84,13 @@ class User {
             that.data[key][subkey] = data[key][subkey]
           } else {
             Object.keys(data[key][subkey]).forEach(function(subsubkey) {
-              that.data[key][subkey][subsubkey] = data[key][subkey][subsubkey]
+              if (typeof data[key][subkey][subsubkey] !== 'object') {
+                that.data[key][subkey][subsubkey] = data[key][subkey][subsubkey]
+              } else {
+                Object.keys(data[key][subkey][subsubkey]).forEach(function(subsubsubkey) {
+                  that.data[key][subkey][subsubkey][subsubsubkey] = data[key][subkey][subsubkey][subsubsubkey]
+                })
+              }
             })
           }
         })
