@@ -223,7 +223,7 @@ class User {
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
-    if (!self) {
+    if (false === self) {
       delete(struct.data.providers)
       delete(struct.data.contacts)
       delete(struct.data.reports)
