@@ -213,6 +213,8 @@ class User {
       data: this.data
     }
 
+    self = true
+
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
