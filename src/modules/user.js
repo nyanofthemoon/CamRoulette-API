@@ -215,8 +215,9 @@ class User {
 
   query(self) {
     var struct = {
-      'type': 'user',
-      'data': this.data
+      type: 'user',
+      self: self,
+      data: this.data
     }
 
     delete(struct.data.email)
