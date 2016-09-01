@@ -97,7 +97,7 @@ class User {
   }
 
   static generateId(email) {
-    return MD5.encrypt(email, Config.user.salt)
+    return MD5(email, Config.user.salt)
   }
 
   getId() {
