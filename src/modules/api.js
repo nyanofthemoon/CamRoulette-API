@@ -241,7 +241,7 @@ class Api {
     newMatchData.leftGender = creator.getGender()
     creator = creator.getSocketId()
     let that = this
-    room.data.results[step].forEach(function(socketId) {
+    Object.keys(room.data.results[step]).forEach(function(socketId) {
       if (socketId != creator) {
         let joiner = that.getUserBySocketId(socketId)
         newMatchData.rightGender   = joiner.getGender()
@@ -565,6 +565,13 @@ class Api {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
               socket.emit('notification', this.getLastMatch())
+
+              // @TODO REMOVE ME !!! DO NOT COMMIT
+              setTimeout(function() {
+                that.data.lastMatch.lastUpdated = new Date().getTime() + 1000
+                socket.emit('notification', that.getLastMatch())
+              }, 5000)
+
               // Reported Users Have To Wait WAIT_TIME_PER_USER_REPORT millis per reports before room queryable
               let that = this
               setTimeout(function() {
