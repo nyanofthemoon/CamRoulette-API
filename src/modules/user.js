@@ -2,7 +2,7 @@
 
 let Logger = require('./logger')
 
-let merge = require('deepmerge')
+let deepExtend = require('deep-extend')
 
 /*
 Friendship
@@ -76,12 +76,7 @@ class User {
   initialize(socket, source, data) {
     this.socket = socket
     this.source = source
-    let merged  = merge(this.data, data)
-
-
-    console.log(merged)
-
-    this.data   = merged
+    deepExtend(this.data, data)
   }
 
   // Returns a promise
@@ -226,12 +221,6 @@ class User {
       delete(struct.data.contacts)
       delete(struct.data.reports)
     }
-
-
-    console.log('QUERY AS ' + self)
-    console.log(struct)
-
-
     return struct
   }
 

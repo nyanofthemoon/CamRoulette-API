@@ -2,6 +2,8 @@
 
 let Logger = require('./logger')
 
+let deepExtend = require('deep-extend')
+
 class Room {
 
   constructor(config) {
@@ -29,10 +31,7 @@ class Room {
 
   initialize(io, data) {
     this.io = io
-    let that = this
-    Object.keys(data).forEach(function (key) {
-      that.data[key] = data[key]
-    })
+    deepExtend(this.data, data)
   }
 
   getName() {

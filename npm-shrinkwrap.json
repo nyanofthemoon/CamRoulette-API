@@ -262,11 +262,6 @@
       "from": "deep-extend@>=0.4.0 <0.5.0",
       "resolved": "https://registry.npmjs.org/deep-extend/-/deep-extend-0.4.1.tgz"
     },
-    "deepmerge": {
-      "version": "0.2.10",
-      "from": "deepmerge@latest",
-      "resolved": "https://registry.npmjs.org/deepmerge/-/deepmerge-0.2.10.tgz"
-    },
     "depd": {
       "version": "1.1.0",
       "from": "depd@>=1.1.0 <1.2.0",
