@@ -138,9 +138,9 @@ class User {
 
   addFriendship(user) {
     let id = user.getId()
-    if (this.getId() != id) {
+    //if (this.getId() != id) {
       this.data.contacts.friendship[id] = id
-    }
+   // }
   }
 
   removeFriendship(user) {
