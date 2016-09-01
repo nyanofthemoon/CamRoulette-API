@@ -252,6 +252,11 @@
       "from": "cron@1.1.0",
       "resolved": "https://registry.npmjs.org/cron/-/cron-1.1.0.tgz"
     },
+    "crypto-js": {
+      "version": "3.1.6",
+      "from": "crypto-js@latest",
+      "resolved": "https://registry.npmjs.org/crypto-js/-/crypto-js-3.1.6.tgz"
+    },
     "debug": {
       "version": "2.2.0",
       "from": "debug@2.2.0",

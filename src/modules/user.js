@@ -3,6 +3,7 @@
 let Logger = require('./logger')
 
 let deepExtend = require('deep-extend')
+let AES = require('crypto-js/aes')
 
 /*
 Friendship
@@ -19,9 +20,11 @@ class User {
 
   constructor(config) {
     this.logger = new Logger('USER', config)
+    this.salt   = config.user.salt
     this.socket = null
     this.source = null
     this.data = {
+      id       : null,
       email    : null,
       firstname: null,
       lastname : null,
@@ -77,6 +80,7 @@ class User {
     this.socket = socket
     this.source = source
     deepExtend(this.data, data)
+    this.data.id = this.getId()
   }
 
   // Returns a promise
@@ -95,7 +99,7 @@ class User {
   }
 
   getId() {
-    return this.data.email
+    return AES.encrypt(this.data.email, this.salt)
   }
 
   getNickname() {
@@ -212,9 +216,6 @@ class User {
       self: self,
       data: this.data
     }
-
-    self = true
-
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
