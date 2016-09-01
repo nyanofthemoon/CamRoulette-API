@@ -3,7 +3,7 @@
 let Logger = require('./logger')
 
 let deepExtend = require('deep-extend')
-let AES = require('crypto-js/aes')
+let MD5 = require('crypto-js/md5')
 
 let Config = require('./../config')
 
@@ -97,7 +97,7 @@ class User {
   }
 
   static generateId(email) {
-    return AES.encrypt(email, Config.user.salt)
+    return MD5.encrypt(email, Config.user.salt)
   }
 
   getId() {
