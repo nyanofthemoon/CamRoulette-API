@@ -405,7 +405,8 @@ class Api {
 
   login(data, socket) {
     try {
-      let user = this.getUserById(data.data.email)
+      let userId = User.generateId(data.data.email)
+      let user = this.getUserById(userId)
       let newUser = false
       if (!user) {
         user = new User(this.config)
