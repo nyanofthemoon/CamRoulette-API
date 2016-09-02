@@ -474,7 +474,7 @@ class Api {
             info = this.getUserBySocketId(socket.id).query(true)
           } else {
             data.type = data.type + ':contact'
-            info = this.getUserById(data.id).query(true)
+            info = this.getUserById(data.id).query(false)
           }
           break
         case 'room':
@@ -656,6 +656,7 @@ class Api {
           if (user) {
             user.initialize(socket, this.source, data.data)
             user.socket.emit('query', user.query(true))
+            info = 'of ' + user.getNickname()
           }
           break
         default:
