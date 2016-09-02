@@ -41,7 +41,8 @@ class User {
         friendship : null,
         headline   : null,
         bio        : null,
-        career     : null,
+        education  : null,
+        employment : null,
         diet       : null, // unhealthy, healthy, vegetarian, vegan, intolerant, other
         picture    : null,
         astrological: {
