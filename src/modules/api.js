@@ -655,6 +655,7 @@ class Api {
           let user = this.getUserBySocketId(socket.id)
           if (user) {
             user.initialize(socket, this.source, data.data)
+            user.socket.emit('query', user.query())
           }
           break
         default:
