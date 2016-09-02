@@ -474,7 +474,7 @@ class Api {
             info = this.getUserBySocketId(socket.id).query(true)
           } else {
             data.type = data.type + ':contact'
-            info = this.getUserById(data.id).query(false)
+            info = this.getUserById(data.id).query(true)
           }
           break
         case 'room':
