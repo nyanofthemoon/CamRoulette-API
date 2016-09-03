@@ -25,31 +25,36 @@ class Api {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'MM': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'F': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'FF': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'AA': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           }
         },
         friendship: {
@@ -57,13 +62,15 @@ class Api {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'F': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() }
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
           }
         }
       },
@@ -557,11 +564,6 @@ class Api {
                   }
                 }
                 incrRandom = true
-              } else {
-                i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
-                if (true === user.acceptsAllAgeGroups()) {
-                  ageGroup = user.getAgeRange(Math.floor(((Math.random() * 42)+18)))
-                }
               }
             }
 
@@ -575,7 +577,7 @@ class Api {
               room.initialize(this.sockets, {
                 name       : name,
                 genderMatch: genderMatch,
-                ageGroup   : user.getAgeRange(),
+                ageGroup   : ageGroup,
                 status     : this.config.room.STATUS_WAITING,
                 stealth    : roomStealth,
                 type       : roomType,

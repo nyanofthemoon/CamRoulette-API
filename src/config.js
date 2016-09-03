@@ -23,7 +23,7 @@ module.exports = {
     WAIT_TIME_RESULT_SCREEN     : parseInt(process.env.WAIT_TIME_RESULT_SCREEN)      || 100000,
     WAIT_TIME_VIDEO_CONVERSATION: parseInt(process.env.WAIT_TIME_VIDEO_CONVERSATION) || 3000000,
     NETWORK_RESPONSE_DELAY      : parseInt(process.env.NETWORK_RESPONSE_DELAY)       || 1000,
-    FIND_BY_QUERY_RETRIES       : 3
+    FIND_BY_QUERY_RETRIES       : 5
   },
 
   environment: {

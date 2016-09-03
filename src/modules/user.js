@@ -178,18 +178,20 @@ class User {
     this.data.reports.reported = this.data.reports.reported + 1
   }
 
-  getAgeRange(age) {
-    if (!age) {
-      age = this.getAge()
-    }
-    if (age < 30) {
-      return '18-29'
-    } else if (age < 50) {
-      return '30-49'
-    } else if (age < 65) {
-      return '50-64'
+  getAgeRange() {
+    if (false === this.acceptsAllAgeGroups()) {
+      let age = this.getAge()
+      if (age < 30) {
+        return '18-29'
+      } else if (age < 50) {
+        return '30-49'
+      } else if (age < 65) {
+        return '50-64'
+      } else {
+        return '65-99'
+      }
     } else {
-      return '65-99'
+      return '18-99'
     }
   }
 
