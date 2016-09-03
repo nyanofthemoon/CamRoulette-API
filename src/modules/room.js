@@ -19,6 +19,7 @@ class Room {
       stealth    : 'no',
       genderMatch: null,
       ageGroup   : null,
+      users      : {},
       scores     : {
         audio: 0,
         video: 0

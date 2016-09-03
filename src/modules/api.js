@@ -570,6 +570,8 @@ class Api {
             if (!room) {
               room = new Room(this.config)
               room.setInitiator(user.getId())
+              let users = {}
+              users[socket.id] = user.getId()
               room.initialize(this.sockets, {
                 name       : name,
                 genderMatch: genderMatch,
@@ -577,11 +579,13 @@ class Api {
                 status     : this.config.room.STATUS_WAITING,
                 stealth    : roomStealth,
                 type       : roomType,
-                timer      : 0
+                timer      : 0,
+                users      : users
               })
               joined = false
             } else {
               roomName = room.getName()
+              room.data.users[socket.id] = user.getId()
             }
 
             socket.join(roomName)
