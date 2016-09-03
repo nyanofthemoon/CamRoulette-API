@@ -37,6 +37,7 @@ class User {
         nickname   : null,
         gender     : null,
         birthday   : null,
+        agegroup   : null,
         orientation: null,
         friendship : null,
         headline   : null,
@@ -112,6 +113,10 @@ class User {
     return this.data.profile.nickname
   }
 
+  acceptsAllAgeGroups() {
+    return ('no' === this.data.profile.agegroup)
+  }
+
   getSocketId() {
     return this.socket.id
   }
@@ -149,8 +154,10 @@ class User {
     delete(this.data.contacts.relationship[user.getId()])
   }
 
-  getAgeRange() {
-    let age = new Date().getFullYear() - new Date(this.data.profile.birthday).getFullYear();
+  getAgeRange(age) {
+    if (!age) {
+      age = this.getAge()
+    }
     if (age < 30) {
       return '18-29'
     } else if (age < 50) {
@@ -160,6 +167,10 @@ class User {
     } else {
       return '65-99'
     }
+  }
+
+  getAge() {
+    return new Date().getFullYear() - new Date(this.data.profile.birthday).getFullYear()
   }
 
   getDatingOrientation() {

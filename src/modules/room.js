@@ -16,6 +16,7 @@ class Room {
       status     : null,
       timer      : null,
       video      : null,
+      stealth    : 'no',
       genderMatch: null,
       ageGroup   : null,
       scores     : {
@@ -52,6 +53,14 @@ class Room {
 
   setType(type) {
     this.data.type = type
+  }
+
+  getStealth() {
+    return this.data.stealth
+  }
+
+  isStealth() {
+    return ('yes' === this.data.stealth)
   }
 
   getStatus() {
