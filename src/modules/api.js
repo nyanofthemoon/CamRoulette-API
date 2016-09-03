@@ -648,25 +648,25 @@ class Api {
 
   message(data, socket) {
     try {
-      let user = this.getUserBySocketId(socket.id)
-      if (user) {
-        socket.to(socket.room).emit('message', {
-          name   : user.getNickname(),
-          message: data
-        })
+      let sender   = this.getUserBySocketId(socket.id)
+      let receiver = this.getUserById(data.id)
+      if (sender) {
+        if (receiver.socket) {
+          receiver.socket.emit('message', {
+            id     : sender.getId(),
+            message: data.message
+          })
+          this.logger.info('[MESSAGE] Message sent to connected user ' + receiver.getNickname())
+        } else {
+          this.logger.info('[MESSAGE] Message stored for disconnected user ' + receiver.getNickname())
+          //@TODO Store messages... and send them all upon login.
+        }
       }
     } catch (e) {
       this.logger.error('[MESSAGE] ' + JSON.stringify(data) + ' ' + e)
     }
   }
 
-  // @NOTE TO DO
-  // In the final screen you can either confirm, reject or report(thats a reject)
-  // If a user has already reported 10 users, the next report will still be added to their reported array
-  // but the reports count of the reported user will not be incremented
-  // If the two people report eachother, they will be added to their reported array
-  // but their reports count will not be incremented
-  // You should be able to report a user if they eagerly terminated the connection on either audio or video
   update(data, socket) {
     try {
       let info = null

@@ -35,6 +35,10 @@ Api.initialize(io, CONFIG).then(function (api) {
           if (socket.room) {
             api.leave(socket)
           }
+          let user = api.getUserBySocketId(this.id)
+          if (user) {
+            user.socket = null
+          }
         })
       } else {
         logger.info('Socket Not Connected - Wrong Application Token', socket.id)
