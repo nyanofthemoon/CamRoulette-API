@@ -121,7 +121,11 @@ class User {
     return this.socket.id
   }
 
-  getReports() {
+  getTimesReported() {
+    return this.data.reports.reportedby
+  }
+
+  getAmountOfReports() {
     return this.data.reports.reported
   }
 
@@ -152,6 +156,26 @@ class User {
 
   removeRelationship(user) {
     delete(this.data.contacts.relationship[user.getId()])
+  }
+
+  blockUser(user) {
+    let blockedUserId = user.getId()
+    this.data.contacts.blocked[blockedUserId] = blockedUserId
+    this.removeRelationship(user)
+    this.removeFriendship(user)
+    user.removeRelationship(this)
+    user.removeFriendship(this)
+  }
+
+  hasTooManyReports() {
+    return (this.getAmountOfReports() > 10)
+  }
+
+  reportUser(user) {
+    if (false === this.hasTooManyReports()) {
+      user.data.reports.reportedby = user.data.reports.reportedby + 1
+    }
+    this.data.reports.reported = this.data.reports.reported + 1
   }
 
   getAgeRange(age) {

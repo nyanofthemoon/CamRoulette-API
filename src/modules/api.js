@@ -204,24 +204,37 @@ class Api {
     delete(this.data.assoc[name])
   }
 
-  getNextRoomByQuery(genderMatch, ageGroup, type, stealth) {
+  getNextRoomByQuery(genderMatch, ageGroup, type, stealth, random) {
+    if (!random) { random = false }
     if ('relationship' === type) {
-      return this._getNextDateRoomByQuery(genderMatch, ageGroup, stealth)
+      return this._getNextDateRoomByQuery(genderMatch, ageGroup, stealth, random)
     } else {
-      return this._getNextFriendRoomByQuery(genderMatch, ageGroup, stealth)
+      return this._getNextFriendRoomByQuery(genderMatch, ageGroup, stealth, random)
     }
   }
 
-  _getNextDateRoomByQuery(genderMatch, ageGroup, stealth) {
-    let match = this.data.queue['relationship'][genderMatch][ageGroup][stealth].keys().next()
+  _getNextDateRoomByQuery(genderMatch, ageGroup, stealth, random) {
+    let match = null
+    if (false === random) {
+      match = this.data.queue['relationship'][genderMatch][ageGroup][stealth].keys().next()
+    } else {
+      var keys = this.data.queue['relationship'][genderMatch][ageGroup][stealth].keys()
+      match    = this.data.queue['relationship'][genderMatch][ageGroup][stealth].keys()[keys[ keys.length * Math.random() << 0]]
+    }
     if (match) {
       return this.getRoomByName(match.value)
     }
     return null
   }
 
-  _getNextFriendRoomByQuery(genderMatch, ageGroup, stealth) {
-    let match = this.data.queue['friendship'][genderMatch][ageGroup][stealth].keys().next()
+  _getNextFriendRoomByQuery(genderMatch, ageGroup, stealth, random) {
+    let match = null
+    if (false === random) {
+      match = this.data.queue['friendship'][genderMatch][ageGroup][stealth].keys().next()
+    } else {
+      var keys = this.data.queue['friendship'][genderMatch][ageGroup][stealth].keys()
+      match    = this.data.queue['friendship'][genderMatch][ageGroup][stealth].keys()[keys[ keys.length * Math.random() << 0]]
+    }
     if (match) {
       return this.getRoomByName(match.value)
     }
@@ -532,8 +545,9 @@ class Api {
               genderMatch = user.getWantedGenderFriend()
             }
             // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
+            let incrRandom = false
             for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth)
+              let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
               if (tempRoom) {
                 if (!user.hasBlocked(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
@@ -542,6 +556,7 @@ class Api {
                     room = tempRoom
                   }
                 }
+                incrRandom = true
               } else {
                 i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                 if (true === user.acceptsAllAgeGroups()) {
@@ -584,7 +599,7 @@ class Api {
               let that = this
               setTimeout(function() {
                 that.addRoom(room)
-              }, (user.getReports() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
+              }, (user.getTimesReported() * parseInt(that.config.user.WAIT_TIME_PER_USER_REPORT)))
             }
             break;
         }
@@ -663,6 +678,31 @@ class Api {
             user.initialize(socket, this.source, data.data)
             user.socket.emit('query', user.query(true))
             info = 'of ' + user.getNickname()
+          }
+          break
+        case 'report':
+          let reporter = this.getUserBySocketId(socket.id)
+          let reported = this.getUserById(data.id)
+          if (reporter && reported) {
+            reporter.blockUser(reported)
+            if (false === reporter.hasTooManyReports()) {
+              info = reported.getNickname() + ' and block requested by ' + reporter.getNickname()
+            } else {
+              info = reported.getNickname() + ' and block requested by ' + reporter.getNickname() + ' but omitted report as ' + reporter.getAmountOfReports() + ' is too high!'
+            }
+            reporter.reportUser(reported)
+            reporter.socket.emit('query', reporter.query(true))
+            try { reported.socket.emit('query', reporter.query(true)) } catch (e) {}
+          }
+          break
+        case 'block':
+          let blocker = this.getUserBySocketId(socket.id)
+          let blocked = this.getUserById(data.id)
+          if (blocker && blocked) {
+            blocker.blockUser(blocked)
+            info = blocked.getNickname() + ' requested by ' + blocker.getNickname()
+            blocker.socket.emit('query', blocker.query(true))
+            try { blocked.socket.emit('query', blocked.query(true)) } catch (e) {}
           }
           break
         default:
