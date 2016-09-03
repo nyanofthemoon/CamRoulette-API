@@ -526,9 +526,6 @@ class Api {
             let roomStealth = data.stealth
             let name        = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch;
-
-            console.log(data)
-
             if ('relationship' === roomType) {
               genderMatch = user.getWantedGenderDate()
             } else {
@@ -561,7 +558,7 @@ class Api {
               room.initialize(this.sockets, {
                 name       : name,
                 genderMatch: genderMatch,
-                ageGroup   : ageGroup,
+                ageGroup   : user.getAgeRange(),
                 status     : this.config.room.STATUS_WAITING,
                 stealth    : roomStealth,
                 type       : roomType,
