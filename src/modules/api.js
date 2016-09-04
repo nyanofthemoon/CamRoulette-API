@@ -500,11 +500,7 @@ class Api {
             info = this.getUserBySocketId(socket.id).query(true)
           } else {
             data.type = data.type + ':contact'
-            if ('development' != this.config.environment.name) {
-              info = this.getUserById(data.id).query(false)
-            } else {
-              info = this.getUserById(data.id).query(true)
-            }
+            info = this.getUserById(data.id).query(false)
           }
           break
         case 'room':
