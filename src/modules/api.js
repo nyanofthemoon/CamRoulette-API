@@ -462,7 +462,7 @@ class Api {
           nickname   : data.data.first_name,
           birthday   : data.data.birthday,
           orientation: 'O',
-          friendship : 'S',
+          friendship : 'A',
           agegroup   : 'no',
           picture    : data.data.picture.data.url,
           astrological: {
