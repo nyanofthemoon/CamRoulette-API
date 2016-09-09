@@ -350,13 +350,19 @@ class Api {
                                 if ('relationship' === room.getType()) {
                                   users.forEach(function(subuser) {
                                     user.addRelationship(subuser)
+                                    if (user.socket) {
+                                      user.socket.emit('query', subuser.query(false))
+                                    }
                                   })
                                 } else {
                                   users.forEach(function(subuser) {
                                     user.addFriendship(subuser)
+                                    if (user.socket) {
+                                      user.socket.emit('query', subuser.query(false))
+                                    }
                                   })
                                 }
-                                user.socket.emit('query', user.query())
+                                user.socket.emit('query', user.query(true))
                               })
                             }
                             that.setLastMatch(room, 'video')
