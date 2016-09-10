@@ -232,6 +232,31 @@ class User {
     }
   }
 
+  getWantedGenderForRoom(type) {
+    if ('relationship' === type) {
+      let dateGender = this.getWantedGenderDate()
+      if ('O' === this.getDatingOrientation()) {
+        if ('M' === this.getGender()) {
+          return 'FM'
+        } else {
+          return 'MF'
+        }
+      } else {
+        return this.getWantedGenderDate()
+      }
+    } else {
+      if ('O' === this.getFriendshipOrientation()) {
+        if ('M' === this.getGender()) {
+          return 'M'
+        } else {
+          return 'F'
+        }
+      } else {
+        return this.getWantedGenderFriend()
+      }
+    }
+  }
+
   getWantedGenderDate() {
     // Same Gender
     if ('S' === this.getDatingOrientation()) {
@@ -243,9 +268,9 @@ class User {
     // Opposite Gender
     } else if ('O' === this.getDatingOrientation()) {
       if ('M' === this.getGender()) {
-        return 'F'
+        return 'MF'
       } else {
-        return 'M'
+        return 'FM'
       }
     // Any Gender
     } else {

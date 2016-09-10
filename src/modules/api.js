@@ -21,7 +21,14 @@ class Api {
       assoc   : {},
       queue   : {
         relationship: {
-          'M': {
+          'MF': {
+            '18-29': { 'yes': new Map(), 'no': new Map() },
+            '30-49': { 'yes': new Map(), 'no': new Map() },
+            '50-64': { 'yes': new Map(), 'no': new Map() },
+            '65-99': { 'yes': new Map(), 'no': new Map() },
+            '18-99': { 'yes': new Map(), 'no': new Map() }
+          },
+          'FM': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
@@ -29,13 +36,6 @@ class Api {
             '18-99': { 'yes': new Map(), 'no': new Map() }
           },
           'MM': {
-            '18-29': { 'yes': new Map(), 'no': new Map() },
-            '30-49': { 'yes': new Map(), 'no': new Map() },
-            '50-64': { 'yes': new Map(), 'no': new Map() },
-            '65-99': { 'yes': new Map(), 'no': new Map() },
-            '18-99': { 'yes': new Map(), 'no': new Map() }
-          },
-          'F': {
             '18-29': { 'yes': new Map(), 'no': new Map() },
             '30-49': { 'yes': new Map(), 'no': new Map() },
             '50-64': { 'yes': new Map(), 'no': new Map() },
@@ -565,8 +565,8 @@ class Api {
                 if (!user.hasBlocked(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
                   if (!initiator.hasBlocked(user.getId())) {
-                    i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                     room = tempRoom
+                    i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                   }
                 }
                 incrRandom = true
@@ -582,7 +582,7 @@ class Api {
               users[socket.id] = user.getId()
               room.initialize(this.sockets, {
                 name       : name,
-                genderMatch: genderMatch,
+                genderMatch: user.getWantedGenderForRoom(roomType),
                 ageGroup   : ageGroup,
                 status     : this.config.room.STATUS_WAITING,
                 stealth    : roomStealth,
