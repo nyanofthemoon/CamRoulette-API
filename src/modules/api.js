@@ -659,8 +659,9 @@ class Api {
       if (sender) {
         if (receiver.socket) {
           receiver.socket.emit('message', {
-            id     : sender.getId(),
-            message: data.message
+            id  : sender.getId(),
+            date: new Date().getTime(),
+            text: data.message
           })
           this.logger.info('[MESSAGE] Message sent to connected user ' + receiver.getNickname())
         } else {
