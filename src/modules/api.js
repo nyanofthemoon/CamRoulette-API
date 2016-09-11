@@ -339,7 +339,7 @@ class Api {
                             })
                           }
 
-                        }, 1000)
+                        }, 5000)
 
 
                         // STATUS_VIDEO_SELECTION
