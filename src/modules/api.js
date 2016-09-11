@@ -329,6 +329,19 @@ class Api {
                         room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
                         room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
                         that.sockets.to(name).emit('query', room.query())
+
+                        setTimeout(function() {
+
+                          let sockets = room.getSockets()
+                          if (sockets) {
+                            sockets.forEach(function(socket) {
+                              socket.join(name)
+                            })
+                          }
+
+                        }, 1000)
+
+
                         // STATUS_VIDEO_SELECTION
                         setTimeout(function () {
                           let socketIds = room.getSocketIds()
@@ -601,11 +614,6 @@ class Api {
             if (joined) {
               this.removeRoomFromQueue(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
-
-
-              console.log(room.getSocketIds())
-
-
               callback(room.getSocketIds())
               this.runTimer(room)
             } else {
