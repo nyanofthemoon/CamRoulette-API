@@ -601,6 +601,11 @@ class Api {
             if (joined) {
               this.removeRoomFromQueue(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
+
+
+              console.log(room.getSocketIds())
+
+
               callback(room.getSocketIds())
               this.runTimer(room)
             } else {
