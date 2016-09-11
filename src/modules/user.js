@@ -73,7 +73,8 @@ class User {
       reports: {
         reported  : 0,
         reportedby: 0
-      }
+      },
+      offlineMessages: []
     }
   }
 
@@ -234,7 +235,6 @@ class User {
 
   getWantedGenderForRoom(type) {
     if ('relationship' === type) {
-      let dateGender = this.getWantedGenderDate()
       if ('O' === this.getDatingOrientation()) {
         if ('M' === this.getGender()) {
           return 'FM'
@@ -278,15 +278,33 @@ class User {
     }
   }
 
+  addOfflineMessage(message) {
+    this.data.offlineMessages.push(message)
+    if (this.data.offlineMessages.length > 100) {
+      this.data.offlineMessages = this.data.offlineMessages.slice(0, 100)
+    }
+  }
+
+  pushOfflineMessages() {
+    if (this.data.offlineMessages.length > 0) {
+      let that = this
+      this.data.offlineMessages.forEach(function(message, i) {
+        that.socket.emit('message', message)
+        delete(that.data.offlineMessages[i])
+      })
+    }
+  }
+
   query(self) {
     var struct = {
       type: 'user',
       self: self,
-      data: this.data
+      data: JSON.parse(JSON.stringify(this.data))
     }
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
+    delete(struct.data.offlineMessages)
     if (false === self) {
       delete(struct.data.providers)
       delete(struct.data.contacts)

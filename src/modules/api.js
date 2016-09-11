@@ -485,12 +485,12 @@ class Api {
           userData.profile.gender = 'F'
         }
       }
-
       user.initialize(socket, this.source, userData)
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
       socket.emit('query', user.query(true))
+      user.pushOfflineMessages()
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
@@ -657,16 +657,17 @@ class Api {
       let sender   = this.getUserBySocketId(socket.id)
       let receiver = this.getUserById(data.id)
       if (sender) {
+        let message = {
+          id  : sender.getId(),
+          date: new Date().getTime(),
+          text: data.message
+        }
         if (receiver.socket) {
-          receiver.socket.emit('message', {
-            id  : sender.getId(),
-            date: new Date().getTime(),
-            text: data.message
-          })
+          receiver.socket.emit('message', message)
           this.logger.info('[MESSAGE] Message sent to connected user ' + receiver.getNickname())
         } else {
+          receiver.addOfflineMessage(message)
           this.logger.info('[MESSAGE] Message stored for disconnected user ' + receiver.getNickname())
-          //@TODO Store messages... and send them all upon login.
         }
       }
     } catch (e) {
