@@ -543,33 +543,41 @@ class Api {
         this.leave(socket)
         let roomName = null
         let room     = null
+        let name     = null
         switch(data.type) {
 
           default:
           case 'match':
-            let ageGroup    = user.getAgeRange()
-            let roomType    = data.type
-            let roomStealth = data.stealth
-            let name        = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
-            let genderMatch;
-            if ('relationship' === roomType) {
-              genderMatch = user.getWantedGenderDate()
+
+            if (data.name) {
+              name = data.name
+              room = this.getRoomByName(name)
             } else {
-              genderMatch = user.getWantedGenderFriend()
-            }
-            // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
-            let incrRandom = false
-            for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-              let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
-              if (tempRoom) {
-                if (!user.hasBlocked(tempRoom.getInitiator())) {
-                  let initiator = this.getUserById(tempRoom.getInitiator())
-                  if (!initiator.hasBlocked(user.getId())) {
-                    room = tempRoom
-                    i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+
+              let ageGroup = user.getAgeRange()
+              let roomType = data.type
+              let roomStealth = data.stealth
+              name = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+              let genderMatch;
+              if ('relationship' === roomType) {
+                genderMatch = user.getWantedGenderDate()
+              } else {
+                genderMatch = user.getWantedGenderFriend()
+              }
+              // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
+              let incrRandom = false
+              for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
+                let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
+                if (tempRoom) {
+                  if (!user.hasBlocked(tempRoom.getInitiator())) {
+                    let initiator = this.getUserById(tempRoom.getInitiator())
+                    if (!initiator.hasBlocked(user.getId())) {
+                      room = tempRoom
+                      i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                    }
                   }
+                  incrRandom = true
                 }
-                incrRandom = true
               }
             }
 
