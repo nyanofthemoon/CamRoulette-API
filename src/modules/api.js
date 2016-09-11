@@ -329,19 +329,6 @@ class Api {
                         room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
                         room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
                         that.sockets.to(name).emit('query', room.query())
-
-                        setTimeout(function() {
-
-                          let sockets = room.getSockets()
-                          if (sockets) {
-                            sockets.forEach(function(socket) {
-                              socket.join(name)
-                            })
-                          }
-
-                        }, 5000)
-
-
                         // STATUS_VIDEO_SELECTION
                         setTimeout(function () {
                           let socketIds = room.getSocketIds()
@@ -429,7 +416,7 @@ class Api {
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
-      socket.on('exchange', function(data) { that.exchange(data, socket) })
+      //socket.on('exchange', function(data) { that.exchange(data, socket) })
       socket.on('message', function(data) { that.message(data, socket) })
       socket.on('subscribe', function(data) { that.subscribe(data, socket) })
       socket.on('unsubscribe', function(data) { that.unsubscribe(data, socket) })
@@ -653,6 +640,7 @@ class Api {
     }
   }
 
+  /*
   exchange(data, socket) {
     try {
       data.from = socket.id
@@ -664,6 +652,7 @@ class Api {
       this.logger.error('[EXCHANGE] ' + JSON.stringify(data) + ' ' + e)
     }
   }
+  */
 
   message(data, socket) {
     try {
