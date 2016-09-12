@@ -555,7 +555,7 @@ class Api {
                 if (sockets) {
                   sockets.forEach(function(sock) {
                     if (sock.id!=socket.id) {
-                      callback([sock])
+                      callback([socket])
                     }
                   })
                 }
