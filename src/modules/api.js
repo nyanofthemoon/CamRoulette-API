@@ -545,10 +545,11 @@ class Api {
         switch(data.type) {
 
           case 'rematch':
-            let room = this.getRoomByName(data.name)
+            roomName = data.name
+            room     = this.getRoomByName(roomName)
             if (room) {
-              socket.join(data.name)
-              socket.room = data.name
+              socket.join(roomName)
+              socket.room = roomName
               callback(room.getSocketIds())
             }
             break;
