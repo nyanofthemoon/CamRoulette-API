@@ -698,7 +698,7 @@ class Api {
               room.setResults(socket, data.data.step, data.data.feeling)
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
             } else {
-              info = 'ROOM NOT FOUND FOR VOTE at ' + data.data.step + ' with ' + data.data.feeling
+              info = socket.room + ' ROOM NOT FOUND FOR VOTE at ' + data.data.step + ' with ' + data.data.feeling
             }
           break
         case 'profile':
