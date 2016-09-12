@@ -546,7 +546,8 @@ class Api {
         switch(data.kind) {
 
           case 'rematch':
-            room = this.getRoomByName(data.name)
+            roomName = data.name
+            room = this.getRoomByName(roomName)
             if (room) {
               socket.join(roomName)
               socket.room = roomName
@@ -697,8 +698,6 @@ class Api {
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
-            } else {
-              info = socket.room + ' ROOM NOT FOUND FOR VOTE at ' + data.data.step + ' with ' + data.data.feeling
             }
           break
         case 'profile':
