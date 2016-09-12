@@ -542,7 +542,7 @@ class Api {
       if (user) {
         let roomName = null
         let room     = null
-        switch(data.type) {
+        switch(data.kind) {
 
           case 'rematch':
             roomName = data.name
