@@ -306,8 +306,10 @@ class Api {
           that.sockets.to(name).emit('query', room.query())
 
           let sockets = room.getSockets()
-          sockets.forEach(function (socket) {
-            socket.leave(name)
+          sockets.forEach(function(socket) {
+            if (socket) {
+              socket.leave(name)
+            }
           })
 
 
