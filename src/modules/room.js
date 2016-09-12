@@ -10,7 +10,6 @@ class Room {
     this.logger = new Logger('ROOM', config)
     this.io = null
     this.initiator = null
-    this.makeOffer = false
     this.data = {
       name       : null,
       type       : null,

@@ -542,18 +542,26 @@ class Api {
       if (user) {
         let roomName = null
         let room     = null
+        let joined   = true
         switch(data.kind) {
 
           case 'rematch':
             roomName = data.name
             room     = this.getRoomByName(roomName)
-            let sockets = room.getSocketIds()
-            sockets.forEach(function(id) {
-              if (id != socket.id) {
-                callback([id])
-              }
-            })
-
+            let newRoomName = 're' + roomName
+            let newRoom = null
+            if (room) {
+              newRoom = JSON.parse(JSON.stringify(room.data))
+              this.removeRoomFromAssoc(room)
+              this.data.assoc[newRoomName] = { room: newRoom }
+              joined = false
+            }
+            newRoom = this.getRoomByName(newRoomName)
+            socket.join(roomName)
+            socket.room = roomName
+            if (joined) {
+              callback(room.getSocketIds())
+            }
             break;
 
           default:
@@ -586,7 +594,6 @@ class Api {
             }
 
             roomName = name
-            let joined = true
             if (!room) {
               room = new Room(this.config)
               room.setInitiator(user.getId())
