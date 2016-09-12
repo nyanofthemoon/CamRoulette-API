@@ -551,9 +551,9 @@ class Api {
               socket.join(roomName)
               socket.room = roomName
               if (false === room.makeOffer) {
-                callback(room.getSocketIds())
-              } else {
                 room.makeOffer = true
+              } else {
+                callback(room.getSocketIds())
               }
             }
             break;
