@@ -31,7 +31,6 @@ Api.initialize(io, CONFIG).then(function (api) {
         api.bindSocketToPublicEvents(socket)
         socket.on('disconnect', function () {
           logger.info('Socket Disconnected', this.id)
-          api.removeSession(this)
           if (socket.room) {
             api.leave(socket)
           }
@@ -39,6 +38,7 @@ Api.initialize(io, CONFIG).then(function (api) {
           if (user) {
             user.socket = null
           }
+          api.removeSession(this)
         })
       } else {
         logger.info('Socket Not Connected - Wrong Application Token', socket.id)
