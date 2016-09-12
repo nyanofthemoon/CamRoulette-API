@@ -548,18 +548,11 @@ class Api {
             roomName = data.name
             room     = this.getRoomByName(roomName)
             if (room) {
+              let offer = room.makeOffer
               if (false === room.makeOffer) {
                 room.makeOffer = true
-              } else {
-                let sockets = room.getSocketIds()
-                if (sockets) {
-                  sockets.forEach(function(sock) {
-                    if (sock.id!=socket.id) {
-                      callback([socket])
-                    }
-                  })
-                }
               }
+              callback({sockets:room.getSockets(), makeOffer:offer})
             }
             break;
 
