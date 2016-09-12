@@ -547,7 +547,13 @@ class Api {
           case 'rematch':
             roomName = data.name
             room     = this.getRoomByName(roomName)
-            callback(room.getSockets())
+            let sockets = room.getSocketIds()
+            sockets.forEach(function(id) {
+              if (id != socket.id) {
+                callback([id])
+              }
+            })
+
             break;
 
           default:
