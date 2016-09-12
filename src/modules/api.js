@@ -322,16 +322,6 @@ class Api {
                     that.sockets.to(name).emit('query', room.query())
                     that.setLastMatch(room, 'audio')
                     that.sockets.to('matches').emit('notification', that.getLastMatch())
-
-
-                    let sockets = room.getSockets()
-                    if (sockets) {
-                      sockets.forEach(function(socket) {
-                        socket.leave(name)
-                      })
-                    }
-
-
                     // STATUS_VIDEO
                     setTimeout(function () {
                       if (room.getSocketIds().length > 1) {
