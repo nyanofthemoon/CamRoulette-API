@@ -547,13 +547,7 @@ class Api {
           case 'rematch':
             roomName = data.name
             room     = this.getRoomByName(roomName)
-            if (room) {
-              if (false === room.makeOffer) {
-                room.makeOffer = true
-              } else {
-                callback(room.getSockets())
-              }
-            }
+            callback(room.getSockets())
             break;
 
           default:
