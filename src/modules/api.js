@@ -416,7 +416,7 @@ class Api {
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
-      //socket.on('exchange', function(data) { that.exchange(data, socket) })
+      socket.on('exchange', function(data) { that.exchange(data, socket) })
       socket.on('message', function(data) { that.message(data, socket) })
       socket.on('subscribe', function(data) { that.subscribe(data, socket) })
       socket.on('unsubscribe', function(data) { that.unsubscribe(data, socket) })
@@ -540,44 +540,42 @@ class Api {
     try {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-        this.leave(socket)
         let roomName = null
         let room     = null
-        let name     = null
         switch(data.type) {
+
+          case 'rematch':
+            socket.join(data.name)
+            socket.room = data.name
+            callback(room.getSocketIds())
+            break;
 
           default:
           case 'match':
-
-            if (data.name) {
-              name = data.name
-              room = this.getRoomByName(name)
+            this.leave(socket)
+            let ageGroup    = user.getAgeRange()
+            let roomType    = data.type
+            let roomStealth = data.stealth
+            let name        = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+            let genderMatch;
+            if ('relationship' === roomType) {
+              genderMatch = user.getWantedGenderDate()
             } else {
-
-              let ageGroup = user.getAgeRange()
-              let roomType = data.type
-              let roomStealth = data.stealth
-              name = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
-              let genderMatch;
-              if ('relationship' === roomType) {
-                genderMatch = user.getWantedGenderDate()
-              } else {
-                genderMatch = user.getWantedGenderFriend()
-              }
-              // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
-              let incrRandom = false
-              for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
-                let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
-                if (tempRoom) {
-                  if (!user.hasBlocked(tempRoom.getInitiator())) {
-                    let initiator = this.getUserById(tempRoom.getInitiator())
-                    if (!initiator.hasBlocked(user.getId())) {
-                      room = tempRoom
-                      i = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
-                    }
+              genderMatch = user.getWantedGenderFriend()
+            }
+            // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
+            let incrRandom = false
+            for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
+              let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
+              if (tempRoom) {
+                if (!user.hasBlocked(tempRoom.getInitiator())) {
+                  let initiator = this.getUserById(tempRoom.getInitiator())
+                  if (!initiator.hasBlocked(user.getId())) {
+                    room = tempRoom
+                    i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                   }
-                  incrRandom = true
                 }
+                incrRandom = true
               }
             }
 
@@ -648,7 +646,6 @@ class Api {
     }
   }
 
-  /*
   exchange(data, socket) {
     try {
       data.from = socket.id
@@ -660,7 +657,6 @@ class Api {
       this.logger.error('[EXCHANGE] ' + JSON.stringify(data) + ' ' + e)
     }
   }
-  */
 
   message(data, socket) {
     try {
