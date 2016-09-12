@@ -304,15 +304,10 @@ class Api {
           room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
           room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
           that.sockets.to(name).emit('query', room.query())
-
           let sockets = room.getSockets()
-          sockets.forEach(function(socket) {
-            if (socket) {
-              socket.leave(name)
-            }
+          sockets.forEach(function (socket) {
+            socket.leave(name)
           })
-
-
           // STATUS_AUDIO_SELECTION
           setTimeout(function () {
             if (room.getSocketIds().length > 1) {
