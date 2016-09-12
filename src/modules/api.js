@@ -544,7 +544,20 @@ class Api {
         let room     = null
         let joined   = true
         switch(data.kind) {
-          
+
+          case 'rematch':
+            room = this.getRoomByName(data.name)
+            if (room) {
+              socket.join(roomName)
+              socket.room = roomName
+              if (false === room.readyToSendOffer) {
+                room.readyToSendOffer = true
+              } else {
+                callback(room.getSocketIds())
+              }
+            }
+            break;
+
           default:
           case 'match':
             this.leave(socket)
