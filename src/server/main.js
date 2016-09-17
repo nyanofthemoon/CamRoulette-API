@@ -3,22 +3,20 @@
 const CONFIG = require('./../config')
 
 let server
+var express = require('express')
+var app = express()
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
 if ('development' === CONFIG.environment.name) {
-  var express = require('express')
-  var app = express()
-  app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-  });
   app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/index.html');
   });
-  var http = require('http')
-  server = http.createServer(app)
-} else {
-  var https = require('https')
-  server = https.createServer({})
 }
+var http = require('http')
+server = http.createServer(app)
+
 let io = require('socket.io')(server)
 
 let Api = require('./../modules/api')
