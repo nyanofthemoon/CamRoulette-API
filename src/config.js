@@ -19,9 +19,9 @@ module.exports = {
     STATUS_VIDEO_RESULTS        : 'results_video',
     STATUS_TERMINATED           : 'terminated',
     WAIT_TIME_AUDIO_CONVERSATION: parseInt(process.env.WAIT_TIME_AUDIO_CONVERSATION) || 600000,
-    WAIT_TIME_SELECTION_SCREEN  : parseInt(process.env.WAIT_TIME_SELECTION_SCREEN)   || 150000,
-    WAIT_TIME_RESULT_SCREEN     : parseInt(process.env.WAIT_TIME_RESULT_SCREEN)      || 100000,
-    WAIT_TIME_VIDEO_CONVERSATION: parseInt(process.env.WAIT_TIME_VIDEO_CONVERSATION) || 3000000,
+    WAIT_TIME_SELECTION_SCREEN  : parseInt(process.env.WAIT_TIME_SELECTION_SCREEN)   || 10000,
+    WAIT_TIME_RESULT_SCREEN     : parseInt(process.env.WAIT_TIME_RESULT_SCREEN)      || 5000,
+    WAIT_TIME_VIDEO_CONVERSATION: parseInt(process.env.WAIT_TIME_VIDEO_CONVERSATION) || 180000,
     NETWORK_RESPONSE_DELAY      : parseInt(process.env.NETWORK_RESPONSE_DELAY)       || 1000,
     FIND_BY_QUERY_RETRIES       : 5
   },

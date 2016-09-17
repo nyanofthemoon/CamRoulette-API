@@ -8,7 +8,7 @@ var app = express()
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   next();
-});
+})
 if ('development' === CONFIG.environment.name) {
   app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/index.html');
