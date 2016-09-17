@@ -26,23 +26,31 @@ let logger = new (require('./../modules/logger'))('SERVER', CONFIG)
 
 Api.initialize(io, CONFIG).then(function (api) {
     io.sockets.on('connection', function (socket) {
-      if (socket.handshake.query && socket.handshake.query.token && CONFIG.application.secrets.indexOf(socket.handshake.query.token) != -1) {
-        logger.info('Socket Connected', socket.id)
-        api.bindSocketToPublicEvents(socket)
-        socket.on('disconnect', function () {
-          logger.info('Socket Disconnected', this.id)
-          if (socket.room) {
-            api.leave(socket)
-          }
-          let user = api.getUserBySocketId(this.id)
-          if (user) {
-            user.socket = null
-          }
-          api.removeSession(this)
-        })
+      if (true === api.acceptsNewConnections()) {
+        if (socket.handshake.query && socket.handshake.query.token && CONFIG.application.secrets.indexOf(socket.handshake.query.token) != -1) {
+          logger.info('Socket Connected', socket.id)
+          api.increaseConnectionCount()
+          api.bindSocketToPublicEvents(socket)
+          socket.on('disconnect', function () {
+            logger.info('Socket Disconnected', this.id)
+            api.decreaseConnectionCount()
+            if (socket.room) {
+              api.leave(socket)
+            }
+            let user = api.getUserBySocketId(this.id)
+            if (user) {
+              user.socket = null
+            }
+            api.removeSession(this)
+          })
+        } else {
+          logger.info('Socket Not Connected - Wrong Application Token', socket.id)
+          socket.emit('upgrade')
+          socket.disconnect(true)
+        }
       } else {
-        logger.info('Socket Not Connected - Wrong Application Token', socket.id)
-        socket.emit('upgrade')
+        logger.info('Socket Not Connected - Max Connection Reached', socket.id)
+        socket.emit('maxconn')
         socket.disconnect(true)
       }
     })

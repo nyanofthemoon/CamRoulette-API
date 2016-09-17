@@ -34,7 +34,8 @@ module.exports = {
 
   user: {
     salt: process.env.USER_SALT || '&!perd3rder5+%',
-    WAIT_TIME_PER_USER_REPORT: parseInt(process.env.WAIT_TIME_PER_USER_REPORT) || 1500
+    WAIT_TIME_PER_USER_REPORT: parseInt(process.env.WAIT_TIME_PER_USER_REPORT) || 1500,
+    MAX_SOCKET_CONNECTIONS   : parseInt(process.env.MAX_SOCKET_CONNECTIONS)    || -1
   },
 
   redis: {

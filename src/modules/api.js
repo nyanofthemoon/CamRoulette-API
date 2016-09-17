@@ -10,11 +10,12 @@ let Astrology = require('./../helpers/astrology')
 class Api {
 
   constructor(config) {
-    this.logger  = new Logger('API', config)
-    this.config  = config
-    this.sockets = null
-    this.source  = null
-    this.workers = {}
+    this.logger      = new Logger('API', config)
+    this.config      = config
+    this.sockets     = null
+    this.source      = null
+    this.workers     = {}
+    this.connections = 0
     this.data    = {
       sessions: {},
       users   : {},
@@ -218,6 +219,25 @@ class Api {
     } else {
       return this._getNextFriendRoomByQuery(genderMatch, ageGroup, stealth, random)
     }
+  }
+
+  increaseConnectionCount() {
+    this.connections = this.connections + 1
+  }
+
+  decreaseConnectionCount() {
+    this.connections = this.connections - 1
+    if (this.connections < 0) {
+      this.connections = 0
+    }
+  }
+
+  acceptsNewConnections() {
+    let max = this.config.user.MAX_SOCKET_CONNECTIONS
+    if (-1 == max || max > this.connections) {
+      return true
+    }
+    return false
   }
 
   _getNextDateRoomByQuery(genderMatch, ageGroup, stealth, random) {
