@@ -137,6 +137,13 @@ class User {
     return false
   }
 
+  hasContact(id) {
+    if (this.data.contacts.friendship[id] || this.data.contacts.relationship[id]) {
+      return true
+    }
+    return false
+  }
+
   addFriendship(user) {
     let id = user.getId()
     if (this.getId() != id) {

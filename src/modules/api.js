@@ -576,8 +576,10 @@ class Api {
                 if (!user.hasBlocked(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
                   if (!initiator.hasBlocked(user.getId())) {
-                    room = tempRoom
-                    i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                    if (!user.hasContact(tempRoom.getInitiator())) {
+                      room = tempRoom
+                      i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                    }
                   }
                 }
                 incrRandom = true
