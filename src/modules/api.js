@@ -234,6 +234,9 @@ class Api {
 
   acceptsNewConnections() {
     let max = this.config.user.MAX_SOCKET_CONNECTIONS
+
+    console.log(this.config.user.MAX_SOCKET_CONNECTIONS + ' > ' + this.connections)
+
     if (-1 == max || max > this.connections) {
       return true
     }
