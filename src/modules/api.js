@@ -750,7 +750,8 @@ class Api {
               userb.pushOfflineMessages()
               info = 'of ' + userb.getNickname() + ' to online'
             } else {
-              userb.makeOffline() + ' to offline'
+              userb.makeOffline()
+              info = 'of ' + userb.getNickname() + ' to offline'
             }
           }
           break
