@@ -32,6 +32,11 @@ module.exports = {
     verbose: process.env.VERBOSE  || true
   },
 
+  bot: {
+    email  : process.env.PLUSH_BOT_EMAIL   || 'paule.lepage@gmail.com',
+    message: process.env.PLUSH_BOT_MESSAGE || 'Hi. Thanks for trying Plush! We are in Beta right now. If you notice anything strange, please let me know. :)',
+  },
+
   user: {
     salt: process.env.USER_SALT || '&!perd3rder5+%',
     WAIT_TIME_PER_USER_REPORT: parseInt(process.env.WAIT_TIME_PER_USER_REPORT) || 1500,

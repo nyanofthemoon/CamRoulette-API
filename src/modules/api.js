@@ -234,9 +234,6 @@ class Api {
 
   acceptsNewConnections() {
     let max = this.config.user.MAX_SOCKET_CONNECTIONS
-
-    console.log(this.config.user.MAX_SOCKET_CONNECTIONS + ' > ' + this.connections)
-
     if (-1 == max || max > this.connections) {
       return true
     }
@@ -460,7 +457,7 @@ class Api {
   login(data, socket) {
     try {
       let userId = User.generateId(data.data.email)
-      let user = this.getUserById(userId)
+      let user   = this.getUserById(userId)
       let newUser = false
       if (!user) {
         user = new User(this.config)
@@ -509,6 +506,20 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
+      if (true === newUser) {
+        // @Everyone Is On Bot List
+        let botId = User.generateId(this.config.bot.email)
+        let bot   = this.getUserById(botId)
+        if (bot) {
+          bot.addFriendship(user)
+          user.addOfflineMessage({
+            id  : botId,
+            date: new Date().getTime(),
+            text: this.config.bot.message
+          })
+        }
+        user.save()
+      }
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
