@@ -94,7 +94,6 @@ class Api {
 
           // Subscribe to Events
           clientOne.subscribe('system')
-
           // Handle Event Messages
           clientOne.on('message', function (channel, message) {
             try {

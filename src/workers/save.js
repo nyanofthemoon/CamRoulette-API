@@ -7,7 +7,7 @@ class Save {
   constructor(config, store) {
     this.logger = new Logger('WORKER [SAVE]', config)
     this.store = store
-    this.interval = 30 * (60 * 1000) // Runs every 30 minutes
+    this.interval = 5000//30 * (60 * 1000) // Runs every 30 minutes
   }
 
   start() {
