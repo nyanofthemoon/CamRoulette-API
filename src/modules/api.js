@@ -472,18 +472,18 @@ class Api {
           country  : data.data.country,
           latitude : data.data.latitude,
           longitude: data.data.longitude
+        },
+        providers: {
+          facebook: {
+            url    : data.data.link,
+            picture: data.data.picture.data.url
+          }
         }
       }
       if (newUser) {
         userData.email     = data.data.email
         userData.firstname = data.data.first_name
         userData.lastname  = data.data.last_name
-        userData.providers = {
-          facebook: {
-            url    : data.data.link,
-            picture: data.data.picture.data.url
-          }
-        }
         userData.profile = {
           nickname   : data.data.first_name,
           birthday   : data.data.birthday,
