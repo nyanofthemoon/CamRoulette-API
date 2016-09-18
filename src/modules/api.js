@@ -489,7 +489,7 @@ class Api {
           }
         }
       }
-      if (newUser) {
+      if (true === newUser) {
         userData.email     = data.data.email
         userData.firstname = data.data.first_name
         userData.lastname  = data.data.last_name
@@ -515,7 +515,7 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
-      if (newUser) {
+      if (true === newUser) {
         // @Everyone Is On Bot List
         let botId = User.generateId(this.config.bot.email)
         let bot   = this.getUserById(botId)
