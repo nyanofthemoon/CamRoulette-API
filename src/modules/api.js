@@ -743,14 +743,14 @@ class Api {
           }
           break
         case 'availability':
-          let user = this.getUserBySocketId(socket.id)
-          if (user) {
+          let userb = this.getUserBySocketId(socket.id)
+          if (userb) {
             if ('online' === data.status) {
-              user.makeOnline()
-              user.pushOfflineMessages()
-              info = 'of ' + user.getNickname() + ' to online'
+              userb.makeOnline()
+              userb.pushOfflineMessages()
+              info = 'of ' + userb.getNickname() + ' to online'
             } else {
-              user.makeOffline() + ' to offline'
+              userb.makeOffline() + ' to offline'
             }
           }
           break
