@@ -611,7 +611,7 @@ class Api {
                 if (!user.hasBlocked(tempRoom.getInitiator())) {
                   let initiator = this.getUserById(tempRoom.getInitiator())
                   if (!initiator.hasBlocked(user.getId())) {
-                    if (!user.hasContact(tempRoom.getInitiator())) {
+                    if (!user.hasContact(tempRoom.getInitiator(), roomType)) {
                       room = tempRoom
                       i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
                     }

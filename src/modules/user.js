@@ -138,8 +138,8 @@ class User {
     return false
   }
 
-  hasContact(id) {
-    if (this.data.contacts.friendship[id] || this.data.contacts.relationship[id]) {
+  hasContact(id, type) {
+    if (this.data.contacts[type][id]) {
       return true
     }
     return false
