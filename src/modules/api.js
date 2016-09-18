@@ -135,7 +135,7 @@ class Api {
                     Object.keys(users).forEach(function (key) {
                       let user = new User(config)
                       user.initialize(null, api.source, JSON.parse(users[key]))
-                      api.data.users[user.getId()] = user
+                      api.addUser(user)
                     })
                   }
                   resolve(api)
@@ -745,6 +745,9 @@ class Api {
         case 'availability':
           let userb = this.getUserBySocketId(socket.id)
           if (userb) {
+
+            console.log(data)
+
             if ('online' === data.status) {
               userb.makeOnline()
               userb.pushOfflineMessages()
