@@ -477,6 +477,17 @@ class Api {
             url    : data.data.link,
             picture: data.data.picture.data.url
           }
+        },
+        profile: {
+          birthday: data.data.birthday,
+          picture : data.data.picture.data.url,
+          astrological: {
+            chinese   : Astrology.calculateChinese(data.data.birthday),
+            zodiac    : Astrology.calculateZodiac(data.data.birthday),
+            birthstone: Astrology.calculateBirthstone(data.data.birthday),
+            planet    : Astrology.calculatePlanet(data.data.birthday),
+            element   : Astrology.calculateElement(data.data.birthday)
+          }
         }
       }
       if (newUser) {
@@ -745,18 +756,14 @@ class Api {
         case 'availability':
           let userb = this.getUserBySocketId(socket.id)
           if (userb) {
-            if ('online' == data.status) {
+            if ('online' == data.status && false === userb.isOnline()) {
               userb.makeOnline()
               userb.pushOfflineMessages()
               info = 'of ' + userb.getNickname() + ' to online'
-            } else {
+            } else if ('offline' == data.status && true === userb.isOnline()) {
               userb.makeOffline()
               info = 'of ' + userb.getNickname() + ' to offline'
             }
-
-
-            console.log(info)
-
           }
           break
         case 'report':
