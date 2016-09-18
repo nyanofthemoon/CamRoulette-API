@@ -50,7 +50,7 @@ module.exports = {
 
   worker: {
     save: {
-      interval: 5000//30 * (60 * 1000) // Runs every 30 minutes
+      interval: parseInt(process.env.WORKER_SAVE_INTERVAL) || (5 * (60 * 1000)) // Runs every 5 minutes
     }
   }
 

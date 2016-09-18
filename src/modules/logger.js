@@ -11,7 +11,7 @@ class Logger {
     }
 
     this.namespace = namespace
-    if (config && config.environment.verbose) {
+    if (config && true == config.environment.verbose) {
       this.debug = true
     } else {
       this.debug = false
