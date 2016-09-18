@@ -1,6 +1,6 @@
 'use strict'
 
-let Logger = require('./../modules/logger')  
+let Logger = require('./../modules/logger')
 
 class Save {
 
