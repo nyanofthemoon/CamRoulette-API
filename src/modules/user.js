@@ -107,7 +107,7 @@ class User {
 
   // Returns a promise
   save() {
-    this.logger.info('Saving user', this.getId())
+    this.logger.info('Saving user ' + this.getId())
     return this.source.hsetAsync('user', this.getId(), JSON.stringify(this.data))
   }
 
