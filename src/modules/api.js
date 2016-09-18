@@ -462,7 +462,6 @@ class Api {
         user    = new User(this.config)
         newUser = true
       }
-
       let userData = {
         location: {
           locale   : data.data.locale,
@@ -537,7 +536,7 @@ class Api {
       user.makeOnline()
       socket.emit('query', user.query(true))
       setTimeout(function() { user.pushOfflineMessages() }, 1000)
-      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)
+      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser, socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
     }
