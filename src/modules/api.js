@@ -515,10 +515,10 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
-      if (true === newUser) {
+      let botId = User.generateId(this.config.bot.email)
+      if (true === newUser && user.getId() != botId) {
         // @Everyone Is On Bot List
-        let botId = User.generateId(this.config.bot.email)
-        let bot   = this.getUserById(botId)
+        let bot = this.getUserById(botId)
         if (bot) {
           bot.addFriendship(user)
           bot.save()
