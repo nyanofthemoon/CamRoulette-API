@@ -521,6 +521,7 @@ class Api {
         let bot   = this.getUserById(botId)
         if (bot) {
           bot.addFriendship(user)
+          bot.save()
           user.addFriendship(bot)
           user.addOfflineMessage({
             id  : botId,
