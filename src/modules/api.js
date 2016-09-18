@@ -455,11 +455,11 @@ class Api {
 
   login(data, socket) {
     try {
-      let userId = User.generateId(data.data.email)
-      let user   = this.getUserById(userId)
+      let userId  = User.generateId(data.data.email)
+      let user    = this.getUserById(userId)
       let newUser = false
       if (!user) {
-        user = new User(this.config)
+        user    = new User(this.config)
         newUser = true
       }
 
@@ -505,7 +505,7 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
-      if (true === newUser) {
+      if (newUser) {
         // @Everyone Is On Bot List
         let botId = User.generateId(this.config.bot.email)
         let bot   = this.getUserById(botId)
@@ -520,12 +520,12 @@ class Api {
         }
         user.save()
       }
-      user.makeOnline()
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
+      user.makeOnline()
       socket.emit('query', user.query(true))
-      user.pushOfflineMessages()
+      setTimeout(function() { user.pushOfflineMessages() }, 1000)
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' looking for ' + user.getAgeRange(), socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
