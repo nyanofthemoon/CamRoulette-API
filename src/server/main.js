@@ -38,6 +38,7 @@ Api.initialize(io, CONFIG).then(function (api) {
             let user = api.getUserBySocketId(this.id)
             if (user) {
               user.socket = null
+              user.makeOffline()
             }
             api.removeSession(this)
           })

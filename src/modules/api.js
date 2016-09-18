@@ -520,6 +520,7 @@ class Api {
         }
         user.save()
       }
+      user.makeOnline()
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
@@ -708,7 +709,7 @@ class Api {
           date: new Date().getTime(),
           text: data.message
         }
-        if (receiver.socket) {
+        if (receiver.socket && receiver.isOnline()) {
           receiver.socket.emit('message', message)
           this.logger.info('[MESSAGE] Message sent to connected user ' + receiver.getNickname())
         } else {
@@ -738,6 +739,19 @@ class Api {
             user.initialize(socket, this.source, data.data)
             user.socket.emit('query', user.query(true))
             info = 'of ' + user.getNickname()
+            user.save()
+          }
+          break
+        case 'availability':
+          let user = this.getUserBySocketId(socket.id)
+          if (user) {
+            if ('online' === data.status) {
+              user.makeOnline()
+              user.pushOfflineMessages()
+              info = 'of ' + user.getNickname() + ' to online'
+            } else {
+              user.makeOffline() + ' to offline'
+            }
           }
           break
         case 'report':

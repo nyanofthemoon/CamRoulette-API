@@ -19,9 +19,10 @@ Orientation
 class User {
 
   constructor(config) {
-    this.logger = new Logger('USER', config)
-    this.socket = null
-    this.source = null
+    this.logger  = new Logger('USER', config)
+    this.socket  = null
+    this.source  = null
+    this.online  = false
     this.data = {
       id       : null,
       email    : null,
@@ -103,6 +104,18 @@ class User {
 
   getId() {
     return this.data.id
+  }
+
+  isOnline() {
+    return this.online
+  }
+
+  makeOnline() {
+    this.online = true
+  }
+
+  makeOffline() {
+    this.online = false
   }
 
   // Returns a promise
