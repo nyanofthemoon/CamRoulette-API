@@ -11,6 +11,7 @@ class Save {
   }
 
   start() {
+    this.logger.info('Initialized')
     var self = this
     setInterval(function () {
       self._run.call(self)
@@ -18,7 +19,9 @@ class Save {
   }
 
   _run() {
+    this.logger.info('Started Task')
     this.store.publish('system', JSON.stringify({type: 'save-users'}))
+    this.logger.info('Completed Task')
   }
 
 }
