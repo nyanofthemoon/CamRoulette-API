@@ -23,7 +23,7 @@ module.exports = {
     WAIT_TIME_RESULT_SCREEN     : parseInt(process.env.WAIT_TIME_RESULT_SCREEN)      || 5000,
     WAIT_TIME_VIDEO_CONVERSATION: parseInt(process.env.WAIT_TIME_VIDEO_CONVERSATION) || 180000,
     NETWORK_RESPONSE_DELAY      : parseInt(process.env.NETWORK_RESPONSE_DELAY)       || 1000,
-    FIND_BY_QUERY_RETRIES       : 5
+    FIND_BY_QUERY_FAILED_RETRIES: parseInt(process.env.FIND_BY_QUERY_FAILED_RETRIES) || 5
   },
 
   environment: {
@@ -38,7 +38,7 @@ module.exports = {
   },
 
   user: {
-    salt: process.env.USER_SALT || '&!perd3rder5+%',
+    salt                     : process.env.USER_SALT || '&!perd3rder5+%',
     WAIT_TIME_PER_USER_REPORT: parseInt(process.env.WAIT_TIME_PER_USER_REPORT) || 1500,
     MAX_SOCKET_CONNECTIONS   : parseInt(process.env.MAX_SOCKET_CONNECTIONS)    || -1
   },
@@ -50,7 +50,7 @@ module.exports = {
 
   worker: {
     save: {
-      interval: parseInt(process.env.WORKER_SAVE_INTERVAL) || (5 * (60 * 1000)) // Runs every 5 minutes
+      interval: parseInt(process.env.WORKER_SAVE_INTERVAL) || (10 * (60 * 1000)) // Runs every 10 minutes
     }
   }
 

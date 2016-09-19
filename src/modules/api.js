@@ -537,7 +537,7 @@ class Api {
       user.makeOnline()
       socket.emit('query', user.query(true))
       setTimeout(function() { user.pushOfflineMessages() }, 1000)
-      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser, socket.id)
+      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser + ' as ' + this.connections + '/' + this.config.user.MAX_SOCKET_CONNECTIONS, socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
     }
@@ -609,26 +609,27 @@ class Api {
             let roomStealth = data.stealth
             let name        = data.kind + '_' + roomType + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
             let genderMatch;
-            if ('relationship' === roomType) {
-              genderMatch = user.getWantedGenderDate()
-            } else {
-              genderMatch = user.getWantedGenderFriend()
-            }
             // Cannot Join A User You Have Reported or Which Has Reported You - X Retries
+            // Cannot Join A User You Already Have On Contact List For Selected Friendship/Relationship
             let incrRandom = false
-            for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_RETRIES); i++) {
+            for (let i = 0; i < parseInt(this.config.room.FIND_BY_QUERY_FAILED_RETRIES); i++) {
+              if ('relationship' === roomType) {
+                genderMatch = user.getWantedGenderDate()
+              } else {
+                genderMatch = user.getWantedGenderFriend()
+              }
               let tempRoom = this.getNextRoomByQuery(genderMatch, ageGroup, roomType, roomStealth, incrRandom)
               if (tempRoom) {
                 if (!user.hasBlocked(tempRoom.getInitiator())) {
-                  let initiator = this.getUserById(tempRoom.getInitiator())
-                  if (!initiator.hasBlocked(user.getId())) {
-                    if (!user.hasContact(tempRoom.getInitiator(), roomType)) {
+                  if (!user.hasContact(tempRoom.getInitiator(), roomType)) {
+                    let initiator = this.getUserById(tempRoom.getInitiator())
+                    if (!initiator.hasBlocked(user.getId())) {
                       room = tempRoom
-                      i    = parseInt(this.config.room.FIND_BY_QUERY_RETRIES)
+                      i = parseInt(this.config.room.FIND_BY_QUERY_FAILED_RETRIES)
                     }
                   }
+                  incrRandom = true
                 }
-                incrRandom = true
               }
             }
 
