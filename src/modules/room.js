@@ -12,6 +12,7 @@ class Room {
     this.initiator = null
     this.readyToSendOffer = false
     this.timeout = null
+    this.closed = false
     this.data = {
       name       : null,
       type       : null,
@@ -162,6 +163,14 @@ class Room {
   clearStepTimeout() {
     clearTimeout(this.timeout)
     this.timeout = null
+  }
+
+  setAsClosed() {
+    this.closed = true
+  }
+
+  isClosed() {
+    return this.closed
   }
 
 }

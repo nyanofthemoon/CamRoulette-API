@@ -366,6 +366,8 @@ class Api {
                 that.updateStepTimeout(room)
               }, (this.config.room.WAIT_TIME_RESULT_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
               room.setStepTimeout(timeout)
+            } else {
+              room.setAsClosed()
             }
             this.setLastMatch(room, 'audio')
             this.sockets.to('matches').emit('notification', this.getLastMatch())
@@ -446,6 +448,8 @@ class Api {
                 }
                 user.socket.emit('query', user.query(true))
               })
+            } else {
+              room.setAsClosed()
             }
             this.setLastMatch(room, 'video')
             this.sockets.to('matches').emit('notification', this.getLastMatch())
@@ -737,7 +741,9 @@ class Api {
         if (room) {
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
-          this.updateStepTimeout(room)
+          if (false === room.isClosed()) {
+            this.updateStepTimeout(room)
+          }
         }
         this.sockets.to(roomName).emit('leave', socket.id)
         this.logger.info('[LEAVE] Left Room ' + roomName)
