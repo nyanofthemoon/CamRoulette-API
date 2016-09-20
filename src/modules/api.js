@@ -528,12 +528,12 @@ class Api {
         providers: {
           facebook: {
             url    : data.data.link,
-            picture: data.data.picture.data.url
+            picture: 'https://graph.facebook.com/'+data.data.id+'/picture?type=large&width=500&height=300'
           }
         },
         profile: {
           birthday: data.data.birthday,
-          picture : data.data.picture.data.url,
+          picture : 'https://graph.facebook.com/'+data.data.id+'/picture?type=large&width=500&height=300',
           astrological: {
             chinese   : Astrology.calculateChinese(data.data.birthday),
             zodiac    : Astrology.calculateZodiac(data.data.birthday),
