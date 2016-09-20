@@ -737,6 +737,7 @@ class Api {
         if (room) {
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
+          this.updateStepTimeout(room)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
         this.logger.info('[LEAVE] Left Room ' + roomName)
