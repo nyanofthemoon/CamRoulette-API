@@ -307,113 +307,145 @@ class Api {
     }
   }
 
-  runTimer(room) {
+  skipStepTimeout(room) {
+    room.clearStepTimeout()
+    this.logger.verbose('[MATCH] ' + room.getName() + ' fast-forwarding from ' + room.getStatus())
+    this.updateStepTimeout(room)
+  }
+
+  updateStepTimeout(room) {
     try {
       let that = this
-      let name = room.getName()
-      // STATUS_AUDIO
-      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
-      room.setStatus(this.config.room.STATUS_AUDIO)
-      room.setVideo(false)
-      room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
-      this.sockets.to(name).emit('query', room.query())
-      setTimeout(function () {
-        if (room.getSocketIds().length > 1) {
-          that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
-          room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-          room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-          that.sockets.to(name).emit('query', room.query())
-          // STATUS_AUDIO_SELECTION
-          setTimeout(function () {
-            if (room.getSocketIds().length > 1) {
-              that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
-              room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
-              room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
-              that.sockets.to(name).emit('query', room.query())
-              if (room.hasPositiveResultForStep('audio')) {
-                // STATUS_AUDIO_RESULTS
-                setTimeout(function () {
-                  if (room.getSocketIds().length > 1) {
-                    that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO)
-                    room.setStatus(that.config.room.STATUS_VIDEO)
-                    room.setVideo(true)
-                    room.setTimer(that.config.room.WAIT_TIME_VIDEO_CONVERSATION)
-                    that.sockets.to(name).emit('query', room.query())
-                    that.setLastMatch(room, 'audio')
-                    that.sockets.to('matches').emit('notification', that.getLastMatch())
-                    // STATUS_VIDEO
-                    setTimeout(function () {
-                      if (room.getSocketIds().length > 1) {
-                        that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_SELECTION)
-                        room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
-                        room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-                        that.sockets.to(name).emit('query', room.query())
-                        // STATUS_VIDEO_SELECTION
-                        setTimeout(function () {
-                          let socketIds = room.getSocketIds()
-                          if (socketIds.length > 1) {
-                            // STATUS_VIDEO_RESULTS
-                            that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
-                            room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
-                            room.setTimer(0)
-                            that.sockets.to(name).emit('query', room.query())
-                            if (room.hasPositiveResultForStep('video')) {
-                              let users = []
-                              socketIds.forEach(function(socketId) {
-                                let user = that.getUserBySocketId(socketId)
-                                if (user) {
-                                  users.push(user)
-                                }
-                              })
-                              users.forEach(function(user) {
-                                if ('relationship' === room.getType()) {
-                                  users.forEach(function(subuser) {
-                                    user.addRelationship(subuser)
-                                    if (user.socket) {
-                                      user.socket.emit('query', subuser.query(false))
-                                    }
-                                  })
-                                } else {
-                                  users.forEach(function(subuser) {
-                                    user.addFriendship(subuser)
-                                    if (user.socket) {
-                                      user.socket.emit('query', subuser.query(false))
-                                    }
-                                  })
-                                }
-                                user.socket.emit('query', user.query(true))
-                              })
-                            }
-                            that.setLastMatch(room, 'video')
-                            that.sockets.to('matches').emit('notification', that.getLastMatch())
-                          } else {
-                            room.setStatus(that.config.room.STATUS_TERMINATED)
-                            that.sockets.to(name).emit('query', room.query())
-                          }
-                        }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-                      } else {
-                        room.setStatus(that.config.room.STATUS_TERMINATED)
-                        that.sockets.to(name).emit('query', room.query())
-                      }
-                    }, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
-                  } else {
-                    room.setStatus(that.config.room.STATUS_TERMINATED)
-                    that.sockets.to(name).emit('query', room.query())
-                  }
-                }, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-              }
-            } else {
-              room.setStatus(that.config.room.STATUS_TERMINATED)
-              that.sockets.to(name).emit('query', room.query())
+      let timeout;
+      switch(room.getStatus()) {
+
+        // AUDIO
+        case this.config.room.STATUS_WAITING:
+          this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO)
+          room.setStatus(this.config.room.STATUS_AUDIO)
+          room.setVideo(false)
+          room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
+          timeout = setTimeout(function() {
+            that.updateStepTimeout(room)
+          }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION+this.config.room.NETWORK_RESPONSE_DELAY))
+          room.setTimeout(timeout)
+          break
+
+        // AUDIO SELECTION
+        case this.config.room.STATUS_AUDIO:
+          if (room.getSocketIds().length > 1) {
+            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+            room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+            room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+            timeout = setTimeout(function() {
+              that.updateStepTimeout(room)
+            }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
+            room.setTimeout(timeout)
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO)
+          }
+          break
+
+        // AUDIO RESULT
+        case this.config.room.STATUS_AUDIO_SELECTION:
+          if (room.getSocketIds().length > 1) {
+            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+            room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+            room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
+            if (room.hasPositiveResultForStep('audio')) {
+              timeout = setTimeout(function() {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_RESULT_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setTimeout(timeout)
             }
-          }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-        } else {
-          room.setStatus(that.config.room.STATUS_TERMINATED)
-          that.sockets.to(name).emit('query', room.query())
-        }
-      }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
+            this.setLastMatch(room, 'audio')
+            this.sockets.to('matches').emit('notification', this.getLastMatch())
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO_SELECTION)
+          }
+          break
+
+        // VIDEO
+        case this.config.room.STATUS_AUDIO_RESULTS:
+          this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO)
+          if (room.getSocketIds().length > 1) {
+            room.setStatus(this.config.room.STATUS_VIDEO)
+            room.setVideo(true)
+            room.setTimer(this.config.room.WAIT_TIME_VIDEO_CONVERSATION)
+            timeout = setTimeout(function() {
+              that.updateStepTimeout(room)
+            }, (this.config.room.WAIT_TIME_VIDEO_CONVERSATION+this.config.room.STATUS_AUDIO_RESULTS))
+            room.setTimeout(timeout)
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO_RESULTS)
+          }
+          break
+
+        // VIDEO SELECTION
+        case this.config.room.STATUS_VIDEO:
+          if (room.getSocketIds().length > 1) {
+            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+            room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+            room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+            timeout = setTimeout(function() {
+              that.updateStepTimeout(room)
+            }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
+            room.setTimeout(timeout)
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_VIDEO)
+          }
+          break
+
+        // VIDEO RESULT
+        case this.config.room.STATUS_VIDEO_SELECTION:
+          if (room.getSocketIds().length > 1) {
+            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+            room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
+            room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
+            if (room.hasPositiveResultForStep('video')) {
+              let users = []
+              socketIds.forEach(function(socketId) {
+                let user = this.getUserBySocketId(socketId)
+                if (user) {
+                  users.push(user)
+                }
+              })
+              users.forEach(function(user) {
+                if ('relationship' === room.getType()) {
+                  users.forEach(function(subuser) {
+                    user.addRelationship(subuser)
+                    if (user.socket) {
+                      user.socket.emit('query', subuser.query(false))
+                    }
+                  })
+                } else {
+                  users.forEach(function(subuser) {
+                    user.addFriendship(subuser)
+                    if (user.socket) {
+                      user.socket.emit('query', subuser.query(false))
+                    }
+                  })
+                }
+                user.socket.emit('query', user.query(true))
+              })
+            }
+            this.setLastMatch(room, 'video')
+            this.sockets.to('matches').emit('notification', this.getLastMatch())
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_VIDEO_SELECTION)
+          }
+          break
+
+        default: break
+      }
+      this.sockets.to(room.getName()).emit('query', room.query())
     } catch (e) {
-      this.logger.error('[TIMER] Error', e)
+      this.logger.error('[MATCH] ' + room.getName() + ' ' + room.getStatus(), e)
     }
   }
 
@@ -654,14 +686,13 @@ class Api {
               roomName = room.getName()
               room.data.users[socket.id] = user.getId()
             }
-
             socket.join(roomName)
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
-              this.runTimer(room)
+              this.updateStepTimeout(room)
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
@@ -743,6 +774,9 @@ class Api {
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
+              if (true === room.hasAcquiredAllResults()) {
+                this.skipStepTimeout(room)
+              }
             }
           break
         case 'profile':

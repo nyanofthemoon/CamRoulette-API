@@ -11,6 +11,7 @@ class Room {
     this.io = null
     this.initiator = null
     this.readyToSendOffer = false
+    this.timeout = null
     this.data = {
       name       : null,
       type       : null,
@@ -123,6 +124,10 @@ class Room {
     this.data.results[step][socket.id] = feeling
   }
 
+  hasAcquiredAllResults(step) {
+    return (2 === Object.keys(this.data.results).length)
+  }
+
   getSockets() {
     let sockets = []
     for (var socketId in this.getSocketIds()) {
@@ -148,6 +153,15 @@ class Room {
       'data': this.data
     }
     return struct
+  }
+
+  setStepTimeout(timeout) {
+    this.timeout = timeout
+  }
+
+  clearStepTimeout() {
+    clearTimeout(this.timeout)
+    this.timeout = null
   }
 
 }
