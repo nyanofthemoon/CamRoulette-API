@@ -434,12 +434,14 @@ class Api {
                 if ('relationship' === room.getType()) {
                   users.forEach(function(subuser) {
                     user.addRelationship(subuser)
+                    user.socket.join(subuser.getId())
                     if (user.socket) {
                       user.socket.emit('query', subuser.query(false))
                     }
                   })
                 } else {
                   users.forEach(function(subuser) {
+                    user.socket.join(subuser.getId())
                     user.addFriendship(subuser)
                     if (user.socket) {
                       user.socket.emit('query', subuser.query(false))
@@ -588,6 +590,18 @@ class Api {
       this.bindSocketToPrivateEvents(socket)
       user.makeOnline()
       socket.emit('query', user.query(true))
+      let availabilityList = {}
+      let that = this
+      user.getContactList().forEach(function(userId) {
+        socket.join(userId)
+        let auser = that.getUserById(userId)
+        if (auser.isOnline()) {
+          availabilityList[userId] = 1
+        } else {
+          availabilityList[userId] = 0
+        }
+      })
+      socket.emit('availability', availabilityList)
       setTimeout(function() { user.pushOfflineMessages() }, 1000)
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser + ' as ' + this.connections + '/' + this.config.user.MAX_SOCKET_CONNECTIONS, socket.id)
     } catch (e) {
