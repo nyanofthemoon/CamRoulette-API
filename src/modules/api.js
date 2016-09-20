@@ -823,6 +823,7 @@ class Api {
           if (user) {
             user.initialize(socket, this.source, data.data)
             user.socket.emit('query', user.query(true))
+            user.socket.to(user.getId()).emit('query', user.query(false))
             info = 'of ' + user.getNickname()
             user.save()
           }
