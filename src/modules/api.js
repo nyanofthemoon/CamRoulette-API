@@ -776,6 +776,8 @@ class Api {
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
               if (true === room.hasAcquiredAllResults()) {
                 this.skipStepTimeout(room)
+              } else {
+                this.sockets.to(room.getName()).emit('query', room.query())
               }
             }
           break
