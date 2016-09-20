@@ -329,7 +329,7 @@ class Api {
           timeout = setTimeout(function() {
             that.updateStepTimeout(room)
           }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION+this.config.room.NETWORK_RESPONSE_DELAY))
-          room.setTimeout(timeout)
+          room.setStepTimeout(timeout)
           break
 
         // AUDIO SELECTION
@@ -338,7 +338,7 @@ class Api {
             if (room.hasAcquiredAllResults('audio')) {
               query = false
               room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-              this.updateStepTimeout(room)
+              this.skipStepTimeout(room)
             } else {
               this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
               room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
@@ -346,7 +346,7 @@ class Api {
               timeout = setTimeout(function () {
                 that.updateStepTimeout(room)
               }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
-              room.setTimeout(timeout)
+              room.setStepTimeout(timeout)
             }
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
@@ -364,7 +364,7 @@ class Api {
               timeout = setTimeout(function() {
                 that.updateStepTimeout(room)
               }, (this.config.room.WAIT_TIME_RESULT_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
-              room.setTimeout(timeout)
+              room.setStepTimeout(timeout)
             }
             this.setLastMatch(room, 'audio')
             this.sockets.to('matches').emit('notification', this.getLastMatch())
@@ -384,7 +384,7 @@ class Api {
             timeout = setTimeout(function() {
               that.updateStepTimeout(room)
             }, (this.config.room.WAIT_TIME_VIDEO_CONVERSATION+this.config.room.STATUS_AUDIO_RESULTS))
-            room.setTimeout(timeout)
+            room.setStepTimeout(timeout)
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
             this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO_RESULTS)
@@ -397,7 +397,7 @@ class Api {
             if (room.hasAcquiredAllResults('video')) {
               query = false
               room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
-              this.updateStepTimeout(room)
+              this.skipStepTimeout(room)
             } else {
               this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
               room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
@@ -405,7 +405,7 @@ class Api {
               timeout = setTimeout(function () {
                 that.updateStepTimeout(room)
               }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
-              room.setTimeout(timeout)
+              room.setStepTimeout(timeout)
             }
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
