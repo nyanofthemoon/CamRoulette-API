@@ -124,7 +124,7 @@ class Room {
     this.data.results[step][socket.id] = feeling
   }
 
-  hasAcquiredAllResults(step) {
+  hasAcquiredAllVotes(step) {
     return (Object.keys(this.data.results[step]).length > 1)
   }
 
