@@ -314,6 +314,9 @@ class Api {
   }
 
   updateStepTimeout(room) {
+
+    console.log('alo ' + room.getStatus())
+
     try {
       let query = true
       let that  = this
