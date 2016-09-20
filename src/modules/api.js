@@ -384,7 +384,7 @@ class Api {
             room.setTimer(this.config.room.WAIT_TIME_VIDEO_CONVERSATION)
             timeout = setTimeout(function() {
               that.updateStepTimeout(room)
-            }, (this.config.room.WAIT_TIME_VIDEO_CONVERSATION+this.config.room.STATUS_AUDIO_RESULTS))
+            }, (this.config.room.WAIT_TIME_VIDEO_CONVERSATION+this.config.room.NETWORK_RESPONSE_DELAY))
             room.setStepTimeout(timeout)
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
@@ -405,7 +405,7 @@ class Api {
               room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
               timeout = setTimeout(function () {
                 that.updateStepTimeout(room)
-              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
+              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
               room.setStepTimeout(timeout)
             }
           } else {
