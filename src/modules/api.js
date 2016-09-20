@@ -337,11 +337,11 @@ class Api {
         case this.config.room.STATUS_AUDIO:
           console.log('got here')
           if (room.getSocketIds().length > 1) {
-            //if (room.hasAcquiredAllResults('audio')) {
-            //  query = false
-            //  room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-            //  this.skipStepTimeout(room)
-            //} else {
+            if (room.hasAcquiredAllResults('audio')) {
+              query = false
+              room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+              this.skipStepTimeout(room)
+            } else {
               this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
               room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
               room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
@@ -349,7 +349,7 @@ class Api {
                 that.updateStepTimeout(room)
               }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
               room.setStepTimeout(timeout)
-            //}
+            }
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
             this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO)

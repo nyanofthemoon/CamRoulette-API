@@ -125,7 +125,7 @@ class Room {
   }
 
   hasAcquiredAllResults(step) {
-    return (2 === Object.keys(this.data.results).length)
+    return (Object.keys(this.data.results[step]).length > 1)
   }
 
   getSockets() {
