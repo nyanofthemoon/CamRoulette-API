@@ -315,7 +315,8 @@ class Api {
 
   updateStepTimeout(room) {
     try {
-      let that = this
+      let query = true
+      let that  = this
       let timeout;
       switch(room.getStatus()) {
 
@@ -334,13 +335,19 @@ class Api {
         // AUDIO SELECTION
         case this.config.room.STATUS_AUDIO:
           if (room.getSocketIds().length > 1) {
-            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
-            room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-            room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-            timeout = setTimeout(function() {
-              that.updateStepTimeout(room)
-            }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
-            room.setTimeout(timeout)
+            if (room.hasAcquiredAllResults('audio')) {
+              query = false
+              room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+              this.updateStepTimeout(room)
+            } else {
+              this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+              room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+              room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+              timeout = setTimeout(function () {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setTimeout(timeout)
+            }
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
             this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO)
@@ -387,13 +394,19 @@ class Api {
         // VIDEO SELECTION
         case this.config.room.STATUS_VIDEO:
           if (room.getSocketIds().length > 1) {
-            this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
-            room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
-            room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-            timeout = setTimeout(function() {
-              that.updateStepTimeout(room)
-            }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
-            room.setTimeout(timeout)
+            if (room.hasAcquiredAllResults('video')) {
+              query = false
+              room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+              this.updateStepTimeout(room)
+            } else {
+              this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+              room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+              room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+              timeout = setTimeout(function () {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setTimeout(timeout)
+            }
           } else {
             room.setStatus(this.config.room.STATUS_TERMINATED)
             this.logger.verbose('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_VIDEO)
@@ -443,7 +456,9 @@ class Api {
 
         default: break
       }
-      this.sockets.to(room.getName()).emit('query', room.query())
+      if (true === query) {
+        this.sockets.to(room.getName()).emit('query', room.query())
+      }
     } catch (e) {
       this.logger.error('[MATCH] ' + room.getName() + ' ' + room.getStatus(), e)
     }
@@ -774,7 +789,7 @@ class Api {
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
-              if (true === room.hasAcquiredAllResults()) {
+              if (true === room.hasAcquiredAllResults(data.data.step)) {
                 this.skipStepTimeout(room)
               } else {
                 this.sockets.to(room.getName()).emit('query', room.query())
