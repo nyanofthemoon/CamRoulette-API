@@ -744,6 +744,9 @@ class Api {
 
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
+            
+            console.log(call.query())
+
             socket.to(called.socket.id).emit('query', call.query())
           }
 

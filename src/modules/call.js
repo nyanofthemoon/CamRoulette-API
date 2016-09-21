@@ -10,13 +10,10 @@ class Call {
     this.logger = new Logger('CALL', config)
     this.io = null
     this.initiator = null
-    this.readyToSendOffer = false
-    this.timeout = null
-    this.closed = false
     this.data = {
       name       : null,
       status     : null,
-      users      : {},
+      users      : {}
     }
   }
 
