@@ -685,12 +685,8 @@ class Api {
           }
         }
         if (true === available) {
-
-
+          //@NOTE When initiator hangs up before recipient says "accept"
           if (call && call.getStatus() == this.config.call.STATUS_INACTIVE && data.name) {
-
-            console.log(data.name + ',' + call.getStatus())
-
             call = new Call(this.config)
             call.initialize(this.sockets, { status: this.config.call.STATUS_INACTIVE })
             socket.emit('query', call.query())
@@ -715,6 +711,9 @@ class Api {
             if (joined) {
               this.logger.info('[CALL] Joined Call ' + callName)
               call.setStatus(this.config.call.STATUS_ACTIVE)
+
+              console.log(call.getSocketIds())
+
               callback(call.getSocketIds())
             } else {
               this.logger.info('[CALL] Created Call ' + callName)
