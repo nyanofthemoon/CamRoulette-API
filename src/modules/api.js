@@ -712,9 +712,12 @@ class Api {
               this.logger.info('[CALL] Joined Call ' + callName)
               call.setStatus(this.config.call.STATUS_ACTIVE)
 
-              console.log(call.getSocketIds())
 
-              callback(call.getSocketIds())
+              callback([socket.id])
+              //callback(call.getSocketIds())
+
+
+
             } else {
               this.logger.info('[CALL] Created Call ' + callName)
               this.addCall(call)
