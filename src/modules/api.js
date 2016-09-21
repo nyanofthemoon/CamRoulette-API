@@ -706,13 +706,10 @@ class Api {
             this.logger.info('[CALL] Joined Call ' + callName)
             call.setStatus(this.config.call.STATUS_ACTIVE)
             callback(call.getSocketIds())
-            socket.to(callName).emit('query', call.query())
-
           } else {
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
             socket.to(called.socket.id).emit('query', call.query())
-            socket.emit('query', call.query())
           }
         } else {
           call = new Call(this.config)
