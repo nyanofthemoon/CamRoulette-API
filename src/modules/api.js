@@ -685,7 +685,10 @@ class Api {
           }
         }
         if (true === available) {
-          if (!call && data.name) {
+
+          console.log(data.name)
+
+          if (!call && undefined !== data.name) {
             call = new Call(this.config)
             call.initialize(this.sockets, { status: this.config.call.STATUS_INACTIVE })
             socket.emit('query', call.query())
