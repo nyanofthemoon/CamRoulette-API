@@ -713,7 +713,8 @@ class Api {
               call.setStatus(this.config.call.STATUS_ACTIVE)
 
 
-              callback([socket.id])
+              let test = this.getUserById(call.data.initiator)
+              callback([test.socket.id])
               //callback(call.getSocketIds())
 
 
