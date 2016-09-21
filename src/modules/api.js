@@ -374,6 +374,21 @@ class Api {
         case this.config.room.STATUS_AUDIO_SELECTION:
           if (room.getSocketIds().length > 1) {
             this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+            //@NOTE Update Personality
+            let that         = this
+            let audioResults = room.getResultsForStep('audio')
+            audioResults.forEach(function(audioSocketIdA) {
+              let audioUser = that.getUserBySocketId(audioSocketIdA)
+              if (audioUser) {
+                audioResults.forEach(function(audioSocketIdB) {
+                  if (audioSocketIdA == audioSocketIdB) {
+                    audioUser.updateExternalPersonality(audioResults[audioSocketIdA])
+                  } else {
+                    audioUser.updateInternalPersonality(audioResults[audioSocketIdA])
+                  }
+                })
+              }
+            })
             room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
             room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
             if (room.hasPositiveResultForStep('audio')) {
@@ -435,6 +450,21 @@ class Api {
         case this.config.room.STATUS_VIDEO_SELECTION:
           if (room.getSocketIds().length > 1) {
             this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+            //@NOTE Update Personality
+            let that        = this
+            let videoResults = room.getResultsForStep('video')
+            videoResults.forEach(function(videoSocketIdA) {
+              let videoUser = that.getUserBySocketId(videoSocketIdA)
+              if (videoUser) {
+                videoResults.forEach(function(videoSocketIdB) {
+                  if (videoSocketIdA == videoSocketIdB) {
+                    videoUser.updateExternalPersonality(videoResults[videoSocketIdA])
+                  } else {
+                    videoUser.updateInternalPersonality(videoResults[videoSocketIdA])
+                  }
+                })
+              }
+            })
             room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
             room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
             if (room.hasPositiveResultForStep('video')) {

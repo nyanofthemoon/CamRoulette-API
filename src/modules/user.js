@@ -57,6 +57,28 @@ class User {
       },
       personality: {
         // http://www.livescience.com/41313-personality-traits.html
+        // @NOTE Votes User Gave
+        internal: {
+          bored      : 0,
+          offended   : 0,
+          angry      : 0,
+          undecided  : 0,
+          charmed    : 0,
+          inspired   : 0,
+          entertained: 0,
+          excited    : 0
+        },
+        // @NOTE Votes User Received
+        external: {
+          bored      : 0,
+          offended   : 0,
+          angry      : 0,
+          undecided  : 0,
+          charmed    : 0,
+          inspired   : 0,
+          entertained: 0,
+          excited    : 0
+        }
       },
       location: {
         city     : null,
@@ -327,6 +349,14 @@ class User {
         delete(that.data.offlineMessages[i])
       })
     }
+  }
+
+  updateInternalPersonality(feeling) {
+    this.data.personality.internal[feeling] = this.data.personality.internal[feeling] + 1
+  }
+
+  updateExternalPersonality(feeling) {
+    this.data.personality.external[feeling] = this.data.personality.external[feeling] + 1
   }
 
   query(self) {

@@ -116,6 +116,10 @@ class Room {
     }
   }
 
+  getResultsForStep(step) {
+    return this.data.results[step]
+  }
+
   setResults(socket, step, feeling) {
     let update = 0;
     if (this.data.results[step][socket.id]) {
