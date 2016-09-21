@@ -669,42 +669,23 @@ class Api {
 
   ring(data, socket, callback) {
     try {
-
-      console.log('1')
-
       let user = this.getUserBySocketId(socket.id)
       if (user) {
-
-        console.log('2')
-        console.log(data)
-
         let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
         let callId    = data.id   || null
         let called    = null
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
-
-        console.log('3')
-
         this.leave(socket)
-
-        console.log('4')
-
         if (!data.name) {
           called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
             available = false
           }
         }
-
-        console.log('5')
-
         if (true === available) {
           if (!call) {
-
-            console.log('6A')
-
             call = new Call(this.config)
             call.setInitiator(user.getId())
             let users = {}
@@ -716,49 +697,27 @@ class Api {
             })
             joined = false
           } else {
-
-            console.log('6B')
-
             callName = call.getName()
             call.data.users[socket.id] = user.getId()
           }
-
-          console.log('7')
-
           socket.join(callName)
           socket.room = callName
-
-          console.log('8')
-
           if (joined) {
-
-            console.log('9A')
-
             this.logger.info('[CALL] Joined Call ' + callName)
             call.setStatus(this.config.call.STATUS_ACTIVE)
             callback(call.getSocketIds())
             socket.to(callName).emit('query', call.query())
 
           } else {
-            console.log('9B')
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
             socket.to(called.socket.id).emit('query', call.query())
             socket.emit('query', call.query())
           }
-
-          console.log('10')
-
-
         } else {
-
-          console.log('BUSY 1')
-
           call = new Call(this.config)
           call.initialize(this.sockets, { status: this.config.call.STATUS_BUSY })
           socket.emit('query', call.query())
-
-          console.log('BUSY 2')
         }
       }
     } catch (e) {
@@ -872,10 +831,10 @@ class Api {
       let roomName = socket.room
       let entity   = 'room'
       if (roomName) {
-        socket.leave(roomName)
         socket.room = null
         let room = this.getRoomByName(roomName)
         if (room) {
+          socket.leave(roomName)
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
           if (false === room.isClosed()) {
@@ -887,8 +846,9 @@ class Api {
         if (call) {
           entity = 'call'
           call.setStatus(this.config.call.STATUS_INACTIVE)
-          this.sockets.to(roomName).emit('leave', socket.id)
           this.sockets.to(roomName).emit('query', call.query())
+          socket.leave(roomName)
+          this.sockets.to(roomName).emit('leave', socket.id)
           this.removeCall(call)
         }
         this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
