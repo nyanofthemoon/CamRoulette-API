@@ -678,11 +678,14 @@ class Api {
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
-        if (!data.name && (this.config.environment.name == 'production' && callId!=botId)) {
+        if (!data.name) {
           called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
             available = false
           }
+        }
+        if (this.config.environment.name === 'production' && callId==User.generateId(this.config.bot.email)) {
+          available = false
         }
         if (true === available) {
           //@NOTE When initiator hangs up before recipient says "accept"
