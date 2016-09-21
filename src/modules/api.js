@@ -679,6 +679,7 @@ class Api {
 
         let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
         let callId    = data.id   || null
+        let called     null
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
@@ -690,7 +691,7 @@ class Api {
         console.log('4')
 
         if (callId) {
-          let called = this.getUserById(callId)
+          called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
             available = false
           }
