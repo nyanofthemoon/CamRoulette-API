@@ -377,10 +377,10 @@ class Api {
             //@NOTE Update Personality
             let that         = this
             let audioResults = room.getResultsForStep('audio')
-            audioResults.forEach(function(audioSocketIdA) {
+            Object.keys(audioResults).forEach(function(audioSocketIdA) {
               let audioUser = that.getUserBySocketId(audioSocketIdA)
               if (audioUser) {
-                audioResults.forEach(function(audioSocketIdB) {
+                Object.keys(audioResults).forEach(function(audioSocketIdB) {
                   if (audioSocketIdA == audioSocketIdB) {
                     audioUser.updateExternalPersonality(audioResults[audioSocketIdA])
                   } else {
@@ -453,10 +453,10 @@ class Api {
             //@NOTE Update Personality
             let that        = this
             let videoResults = room.getResultsForStep('video')
-            videoResults.forEach(function(videoSocketIdA) {
+            Object.keys(videoResults).forEach(function(videoSocketIdA) {
               let videoUser = that.getUserBySocketId(videoSocketIdA)
               if (videoUser) {
-                videoResults.forEach(function(videoSocketIdB) {
+                Object.keys(videoResults).forEach(function(videoSocketIdB) {
                   if (videoSocketIdA == videoSocketIdB) {
                     videoUser.updateExternalPersonality(videoResults[videoSocketIdA])
                   } else {
