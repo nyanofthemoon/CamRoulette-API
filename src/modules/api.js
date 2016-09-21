@@ -678,7 +678,7 @@ class Api {
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
-        if (!data.name && (this.config.environment.name != 'production' && callId!=botId)) {
+        if (!data.name && (this.config.environment.name == 'production' && callId!=botId)) {
           called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
             available = false
