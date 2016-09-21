@@ -81,7 +81,8 @@ class Api {
         rightEmoticon: 'undecided',
         rightGender  : 'F',
         lastUpdated  : new Date().getTime()
-      }
+      },
+      calls: {}
     }
   }
 
@@ -173,6 +174,10 @@ class Api {
     return this.data.users || {}
   }
 
+  addCall(call) {
+    this.data.calls[call.getId()] = call
+  }
+
   addRoom(room) {
     let name = room.getName()
     let genderMatch = room.getGenderMatch()
@@ -195,6 +200,19 @@ class Api {
       return data.room
     }
     return null
+  }
+
+  getCallByName(name) {
+    let data = this.data.calls[name]
+    if (data) {
+      return data.room
+    }
+    return null
+  }
+
+  removeCall(call) {
+    let name = call.getName()
+    delete(this.data.calls[name])
   }
 
   removeRoomFromQueue(room) {
@@ -487,6 +505,7 @@ class Api {
     try {
       socket.on('query', function(data) { that.query(data, socket) })
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
+      socket.on('call', function(data, callback) { that.call(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
@@ -627,8 +646,15 @@ class Api {
             let room = this.getRoomByName(data.name)
             if (room) {
               info = room.query()
-            } else {
-              this.logger.error('[QUERY] ' + socket.id + ' does not have read access over ' + data.name)
+            }
+          }
+          break
+        case 'call':
+          let cuser = this.getUserBySocketId(socket.id)
+          if (cuser) {
+            let call = this.getCallByName(data.name)
+            if (call) {
+              info = call.query()
             }
           }
           break
@@ -641,6 +667,59 @@ class Api {
       }
     } catch (e) {
       this.logger.error('[QUERY] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  call(data, socket, callback) {
+    try {
+      let user = this.getUserBySocketId(socket.id)
+      if (user) {
+        let callName  = data.name || data.kind + '_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+        let callId    = data.id   || null
+        let call      = this.getCallByName(callName)
+        let joined    = true
+        let available = true
+        this.leave(socket)
+        if (callId) {
+          let called = this.getUserById(callId)
+          if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
+            available = false
+          }
+        }
+        if (true === available) {
+          if (!call) {
+            call = new Call(this.config)
+            call.setInitiator(user.getId())
+            let users = {}
+            users[socket.id] = user.getId()
+            call.initialize(this.sockets, {
+              name: name,
+              status: this.config.call.STATUS_WAITING,
+              users: users
+            })
+            joined = false
+          } else {
+            callName = call.getName()
+            call.data.users[socket.id] = user.getId()
+          }
+          socket.join(callName)
+          socket.room = callName
+          if (joined) {
+            this.logger.info('[CALL] Joined Call ' + callName)
+            call.setStatus(this.config.call.STATUS_ACTIVE)
+            callback(call.getSocketIds())
+          } else {
+            this.logger.info('[CALL] Created Call ' + callName)
+            this.addCall(call)
+            socket.emit('query', call.query())
+          }
+        } else {
+          call.setStatus(this.config.call.STATUS_BUSY)
+          socket.emit('query', call.query())
+        }
+      }
+    } catch (e) {
+      this.logger.error('[CALL] ' + JSON.stringify(callName) + ' ' + e)
     }
   }
 
@@ -665,7 +744,7 @@ class Api {
                 callback(room.getSocketIds())
               }
             }
-            break;
+            break
 
           default:
           case 'match':
@@ -748,6 +827,7 @@ class Api {
   leave(socket) {
     try {
       let roomName = socket.room
+      let entity   = 'room'
       if (roomName) {
         socket.leave(roomName)
         socket.room = null
@@ -758,9 +838,15 @@ class Api {
           if (false === room.isClosed()) {
             this.updateStepTimeout(room)
           }
+          this.sockets.to(roomName).emit('leave', socket.id)
         }
-        this.sockets.to(roomName).emit('leave', socket.id)
-        this.logger.info('[LEAVE] Left Room ' + roomName)
+        let call = this.getCallByName(roomName)
+        if (call) {
+          entity = 'call'
+          this.removeCall(call)
+          this.sockets.to(roomName).emit('leave', socket.id)
+        }
+        this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
       }
     } catch (e) {
       this.logger.error('[LEAVE] ' + e)
@@ -864,6 +950,14 @@ class Api {
             info = blocked.getNickname() + ' requested by ' + blocker.getNickname()
             blocker.socket.emit('query', blocker.query(true))
             try { blocked.socket.emit('query', blocked.query(true)) } catch (e) {}
+          }
+          break
+        case 'call':
+          let call = this.getCallByName(socket.room)
+          if (call) {
+            call.initialize(socket, this.source, data.data)
+            call.io.to(call.getName()).emit('query', call.query())
+            info = 'of ' + call.getName()
           }
           break
         default:
