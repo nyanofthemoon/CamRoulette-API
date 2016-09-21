@@ -955,7 +955,7 @@ class Api {
         case 'call':
           let call = this.getCallByName(socket.room)
           if (call) {
-            call.initialize(this.source, data.data)
+            call.initialize(this.sockets, data.data)
             call.io.to(call.getName()).emit('query', call.query())
             info = 'of ' + call.getName()
           }
