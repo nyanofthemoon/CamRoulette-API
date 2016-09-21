@@ -3,6 +3,7 @@
 let Logger = require('./logger')
 let Redis = require('./redis')
 let Room = require('./room')
+let Call = require('./call')
 let User = require('./user')
 
 let Astrology = require('./../helpers/astrology')
@@ -203,11 +204,7 @@ class Api {
   }
 
   getCallByName(name) {
-    let data = this.data.calls[name]
-    if (data) {
-      return data.room
-    }
-    return null
+    return this.data.calls[name] || null
   }
 
   removeCall(call) {
