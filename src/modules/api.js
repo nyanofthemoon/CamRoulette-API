@@ -711,10 +711,13 @@ class Api {
           } else {
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
-            socket.emit('query', call.query())
           }
+          socket.to(callName).emit('query', call.query())
         } else {
-          call.setStatus(this.config.call.STATUS_BUSY)
+          call = new Call(this.config)
+          call.initialize(this.sockets, {
+            status: this.config.call.STATUS_BUSY
+          })
           socket.emit('query', call.query())
         }
       }
@@ -843,8 +846,10 @@ class Api {
         let call = this.getCallByName(roomName)
         if (call) {
           entity = 'call'
-          this.removeCall(call)
+          call.setStatus(this.config.call.STATUS_INACTIVE)
           this.sockets.to(roomName).emit('leave', socket.id)
+          this.sockets.to(roomName).emit('query', call.query())
+          this.removeCall(call)
         }
         this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
       }
