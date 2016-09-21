@@ -685,31 +685,37 @@ class Api {
           }
         }
         if (true === available) {
-          if (!call) {
+          if (!call && !callId) {
             call = new Call(this.config)
-            let users = {}
-            users[socket.id] = user.getId()
-            call.initialize(this.sockets, {
-              name     : callName,
-              initiator: user.getId(),
-              status   : this.config.call.STATUS_WAITING,
-              users    : users
-            })
-            joined = false
+            call.initialize(this.sockets, { status: this.config.call.STATUS_INACTIVE })
+            socket.emit('query', call.query())
           } else {
-            callName = call.getName()
-            call.data.users[socket.id] = user.getId()
-          }
-          socket.join(callName)
-          socket.room = callName
-          if (joined) {
-            this.logger.info('[CALL] Joined Call ' + callName)
-            call.setStatus(this.config.call.STATUS_ACTIVE)
-            callback(call.getSocketIds())
-          } else {
-            this.logger.info('[CALL] Created Call ' + callName)
-            this.addCall(call)
-            socket.to(called.socket.id).emit('query', call.query())
+            if (!call) {
+              call = new Call(this.config)
+              let users = {}
+              users[socket.id] = user.getId()
+              call.initialize(this.sockets, {
+                name: callName,
+                initiator: user.getId(),
+                status: this.config.call.STATUS_WAITING,
+                users: users
+              })
+              joined = false
+            } else {
+              callName = call.getName()
+              call.data.users[socket.id] = user.getId()
+            }
+            socket.join(callName)
+            socket.room = callName
+            if (joined) {
+              this.logger.info('[CALL] Joined Call ' + callName)
+              call.setStatus(this.config.call.STATUS_ACTIVE)
+              callback(call.getSocketIds())
+            } else {
+              this.logger.info('[CALL] Created Call ' + callName)
+              this.addCall(call)
+              socket.to(called.socket.id).emit('query', call.query())
+            }
           }
         } else {
           call = new Call(this.config)
