@@ -964,7 +964,8 @@ class Api {
           }
           break
         case 'call':
-          let call = this.getCallByName(socket.room)
+          let callId = socket.room || data.id
+          let call = this.getCallByName(callId)
           if (call) {
             call.initialize(this.sockets, data.data)
             call.io.to(call.getName()).emit('query', call.query())
