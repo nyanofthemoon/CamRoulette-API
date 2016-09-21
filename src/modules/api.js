@@ -691,7 +691,7 @@ class Api {
 
         console.log('4')
 
-        if (callId) {
+        if (!data.name) {
           called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
             available = false
@@ -737,14 +737,14 @@ class Api {
             this.logger.info('[CALL] Joined Call ' + callName)
             call.setStatus(this.config.call.STATUS_ACTIVE)
             callback(call.getSocketIds())
-            //socket.to(callName).emit('query', call.query())
+
           } else {
 
             console.log('9B')
 
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
-            
+
             console.log(call.query())
 
             socket.to(called.socket.id).emit('query', call.query())
