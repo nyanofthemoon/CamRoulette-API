@@ -671,13 +671,13 @@ class Api {
     try {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
+        this.leave(socket)
         let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
         let callId    = data.id   || null
         let called    = null
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
-        this.leave(socket)
         if (!data.name) {
           called = this.getUserById(callId)
           if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
@@ -687,13 +687,13 @@ class Api {
         if (true === available) {
           if (!call) {
             call = new Call(this.config)
-            call.setInitiator(user.getId())
             let users = {}
             users[socket.id] = user.getId()
             call.initialize(this.sockets, {
-              name: callName,
-              status: this.config.call.STATUS_WAITING,
-              users: users
+              name     : callName,
+              initiator: user.getId(),
+              status   : this.config.call.STATUS_WAITING,
+              users    : users
             })
             joined = false
           } else {

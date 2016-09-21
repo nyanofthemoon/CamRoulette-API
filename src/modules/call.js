@@ -9,9 +9,9 @@ class Call {
   constructor(config) {
     this.logger = new Logger('CALL', config)
     this.io = null
-    this.initiator = null
     this.data = {
       name       : null,
+      initiator  : null,
       status     : null,
       users      : {}
     }
@@ -32,14 +32,6 @@ class Call {
 
   setStatus(status) {
     this.data.status = status
-  }
-
-  setInitiator(id) {
-    this.initiator = id
-  }
-
-  getInitiator() {
-    return this.initiator
   }
 
   getSockets() {
