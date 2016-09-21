@@ -11,6 +11,8 @@ class Room {
     this.io = null
     this.initiator = null
     this.readyToSendOffer = false
+    this.timeout = null
+    this.closed = false
     this.data = {
       name       : null,
       type       : null,
@@ -114,6 +116,10 @@ class Room {
     }
   }
 
+  getResultsForStep(step) {
+    return this.data.results[step]
+  }
+
   setResults(socket, step, feeling) {
     let update = 0;
     if (this.data.results[step][socket.id]) {
@@ -121,6 +127,10 @@ class Room {
     }
     this.data.scores[step] = this.data.scores[step] + update + this._getFeelingScore(feeling)
     this.data.results[step][socket.id] = feeling
+  }
+
+  hasAcquiredAllVotes(step) {
+    return (Object.keys(this.data.results[step]).length > 1)
   }
 
   getSockets() {
@@ -148,6 +158,23 @@ class Room {
       'data': this.data
     }
     return struct
+  }
+
+  setStepTimeout(timeout) {
+    this.timeout = timeout
+  }
+
+  clearStepTimeout() {
+    clearTimeout(this.timeout)
+    this.timeout = null
+  }
+
+  setAsClosed() {
+    this.closed = true
+  }
+
+  isClosed() {
+    return this.closed
   }
 
 }

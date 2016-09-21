@@ -26,6 +26,13 @@ module.exports = {
     FIND_BY_QUERY_FAILED_RETRIES: parseInt(process.env.FIND_BY_QUERY_FAILED_RETRIES) || 5
   },
 
+  call: {
+    STATUS_WAITING   : 'waiting',
+    STATUS_ACTIVE    : 'active',
+    STATUS_BUSY      : 'busy',
+    STATUS_INACTIVE  : 'inactive'
+  },
+
   environment: {
     name   : process.env.NODE_ENV || 'development',
     port   : process.env.PORT     || 8888,

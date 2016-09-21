@@ -55,8 +55,40 @@ class User {
           element   : null
         }
       },
+      match: {
+        audio: {
+          success: 0,
+          fail   : 0
+        },
+        video: {
+          success: 0,
+          fail   : 0
+        }
+      },
       personality: {
         // http://www.livescience.com/41313-personality-traits.html
+        // @NOTE Votes User Gave
+        internal: {
+          bored      : 0,
+          offended   : 0,
+          angry      : 0,
+          undecided  : 0,
+          charmed    : 0,
+          inspired   : 0,
+          entertained: 0,
+          excited    : 0
+        },
+        // @NOTE Votes User Received
+        external: {
+          bored      : 0,
+          offended   : 0,
+          angry      : 0,
+          undecided  : 0,
+          charmed    : 0,
+          inspired   : 0,
+          entertained: 0,
+          excited    : 0
+        }
       },
       location: {
         city     : null,
@@ -110,12 +142,25 @@ class User {
     return this.online
   }
 
+  getContactList() {
+    return Object.keys(this.data.contacts.friendship).concat(Object.keys(this.data.contacts.relationship));
+  }
+
   makeOnline() {
-    this.online = true
+    if (this.socket) {
+      this.online = true
+      let data = {};
+      data[this.getId()] = 1
+      this.socket.to(this.getId()).emit('availability', data)
+    }
   }
 
   makeOffline() {
-    this.online = false
+    if (this.socket) {
+      this.online = false
+      let data = {}; data[this.getId()] = 0
+      this.socket.to(this.getId()).emit('availability', data)
+    }
   }
 
   // Returns a promise
@@ -314,6 +359,22 @@ class User {
         delete(that.data.offlineMessages[i])
       })
     }
+  }
+
+  updateSuccessMatchScore(type) {
+    this.data.match[type].success = this.data.match[type].success + 1
+  }
+
+  updateFailMatchScore(type) {
+    this.data.match[type].fail = this.data.match[type].fail + 1
+  }
+
+  updateInternalPersonality(feeling) {
+    this.data.personality.internal[feeling] = this.data.personality.internal[feeling] + 1
+  }
+
+  updateExternalPersonality(feeling) {
+    this.data.personality.external[feeling] = this.data.personality.external[feeling] + 1
   }
 
   query(self) {

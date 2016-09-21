@@ -3,6 +3,7 @@
 let Logger = require('./logger')
 let Redis = require('./redis')
 let Room = require('./room')
+let Call = require('./call')
 let User = require('./user')
 
 let Astrology = require('./../helpers/astrology')
@@ -81,7 +82,8 @@ class Api {
         rightEmoticon: 'undecided',
         rightGender  : 'F',
         lastUpdated  : new Date().getTime()
-      }
+      },
+      calls: {}
     }
   }
 
@@ -173,6 +175,10 @@ class Api {
     return this.data.users || {}
   }
 
+  addCall(call) {
+    this.data.calls[call.getName()] = call
+  }
+
   addRoom(room) {
     let name = room.getName()
     let genderMatch = room.getGenderMatch()
@@ -195,6 +201,15 @@ class Api {
       return data.room
     }
     return null
+  }
+
+  getCallByName(name) {
+    return this.data.calls[name] || null
+  }
+
+  removeCall(call) {
+    let name = call.getName()
+    delete(this.data.calls[name])
   }
 
   removeRoomFromQueue(room) {
@@ -307,113 +322,207 @@ class Api {
     }
   }
 
-  runTimer(room) {
+  skipStepTimeout(room) {
+    room.clearStepTimeout()
+    this.logger.verbose('[MATCH] ' + room.getName() + ' fast-forwarding from ' + room.getStatus())
+    this.updateStepTimeout(room)
+  }
+
+  updateStepTimeout(room) {
     try {
-      let that = this
-      let name = room.getName()
-      // STATUS_AUDIO
-      this.logger.verbose('[TIMER] ' + name + ' ' + this.config.room.STATUS_AUDIO)
-      room.setStatus(this.config.room.STATUS_AUDIO)
-      room.setVideo(false)
-      room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
-      this.sockets.to(name).emit('query', room.query())
-      setTimeout(function () {
-        if (room.getSocketIds().length > 1) {
-          that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_SELECTION)
-          room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
-          room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-          that.sockets.to(name).emit('query', room.query())
-          // STATUS_AUDIO_SELECTION
-          setTimeout(function () {
-            if (room.getSocketIds().length > 1) {
-              that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_AUDIO_RESULTS)
-              room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
-              room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
-              that.sockets.to(name).emit('query', room.query())
-              if (room.hasPositiveResultForStep('audio')) {
-                // STATUS_AUDIO_RESULTS
-                setTimeout(function () {
-                  if (room.getSocketIds().length > 1) {
-                    that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO)
-                    room.setStatus(that.config.room.STATUS_VIDEO)
-                    room.setVideo(true)
-                    room.setTimer(that.config.room.WAIT_TIME_VIDEO_CONVERSATION)
-                    that.sockets.to(name).emit('query', room.query())
-                    that.setLastMatch(room, 'audio')
-                    that.sockets.to('matches').emit('notification', that.getLastMatch())
-                    // STATUS_VIDEO
-                    setTimeout(function () {
-                      if (room.getSocketIds().length > 1) {
-                        that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_SELECTION)
-                        room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
-                        room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
-                        that.sockets.to(name).emit('query', room.query())
-                        // STATUS_VIDEO_SELECTION
-                        setTimeout(function () {
-                          let socketIds = room.getSocketIds()
-                          if (socketIds.length > 1) {
-                            // STATUS_VIDEO_RESULTS
-                            that.logger.verbose('[TIMER] ' + name + ' ' + that.config.room.STATUS_VIDEO_RESULTS)
-                            room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
-                            room.setTimer(0)
-                            that.sockets.to(name).emit('query', room.query())
-                            if (room.hasPositiveResultForStep('video')) {
-                              let users = []
-                              socketIds.forEach(function(socketId) {
-                                let user = that.getUserBySocketId(socketId)
-                                if (user) {
-                                  users.push(user)
-                                }
-                              })
-                              users.forEach(function(user) {
-                                if ('relationship' === room.getType()) {
-                                  users.forEach(function(subuser) {
-                                    user.addRelationship(subuser)
-                                    if (user.socket) {
-                                      user.socket.emit('query', subuser.query(false))
-                                    }
-                                  })
-                                } else {
-                                  users.forEach(function(subuser) {
-                                    user.addFriendship(subuser)
-                                    if (user.socket) {
-                                      user.socket.emit('query', subuser.query(false))
-                                    }
-                                  })
-                                }
-                                user.socket.emit('query', user.query(true))
-                              })
-                            }
-                            that.setLastMatch(room, 'video')
-                            that.sockets.to('matches').emit('notification', that.getLastMatch())
-                          } else {
-                            room.setStatus(that.config.room.STATUS_TERMINATED)
-                            that.sockets.to(name).emit('query', room.query())
-                          }
-                        }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-                      } else {
-                        room.setStatus(that.config.room.STATUS_TERMINATED)
-                        that.sockets.to(name).emit('query', room.query())
-                      }
-                    }, (that.config.room.WAIT_TIME_VIDEO_CONVERSATION + that.config.room.NETWORK_RESPONSE_DELAY))
-                  } else {
-                    room.setStatus(that.config.room.STATUS_TERMINATED)
-                    that.sockets.to(name).emit('query', room.query())
-                  }
-                }, (that.config.room.WAIT_TIME_RESULT_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-              }
+      let query = true
+      let that  = this
+      let timeout;
+      switch(room.getStatus()) {
+
+        // AUDIO
+        case this.config.room.STATUS_WAITING:
+          this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO)
+          room.setStatus(this.config.room.STATUS_AUDIO)
+          room.setVideo(false)
+          room.setTimer(this.config.room.WAIT_TIME_AUDIO_CONVERSATION)
+          timeout = setTimeout(function() {
+            that.updateStepTimeout(room)
+          }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION+this.config.room.NETWORK_RESPONSE_DELAY))
+          room.setStepTimeout(timeout)
+          break
+
+        // AUDIO SELECTION
+        case this.config.room.STATUS_AUDIO:
+          if (room.getSocketIds().length > 1) {
+            this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+            if (room.hasAcquiredAllVotes('audio')) {
+              query = false
+              room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+              this.skipStepTimeout(room)
             } else {
-              room.setStatus(that.config.room.STATUS_TERMINATED)
-              that.sockets.to(name).emit('query', room.query())
+              this.logger.verbose('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_SELECTION)
+              room.setStatus(that.config.room.STATUS_AUDIO_SELECTION)
+              room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+              timeout = setTimeout(function () {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN + this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setStepTimeout(timeout)
             }
-          }, (that.config.room.WAIT_TIME_SELECTION_SCREEN + that.config.room.NETWORK_RESPONSE_DELAY))
-        } else {
-          room.setStatus(that.config.room.STATUS_TERMINATED)
-          that.sockets.to(name).emit('query', room.query())
-        }
-      }, (this.config.room.WAIT_TIME_AUDIO_CONVERSATION + this.config.room.NETWORK_RESPONSE_DELAY))
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.warning('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO)
+          }
+          break
+
+        // AUDIO RESULT
+        case this.config.room.STATUS_AUDIO_SELECTION:
+          if (room.getSocketIds().length > 1) {
+            this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_AUDIO_RESULTS)
+            //@NOTE Update Personality
+            let that         = this
+            let audioResults = room.getResultsForStep('audio')
+            Object.keys(audioResults).forEach(function(audioSocketIdA) {
+              let audioUser = that.getUserBySocketId(audioSocketIdA)
+              if (audioUser) {
+                Object.keys(audioResults).forEach(function(audioSocketIdB) {
+                  if (audioSocketIdA == audioSocketIdB) {
+                    audioUser.updateExternalPersonality(audioResults[audioSocketIdA])
+                  } else {
+                    audioUser.updateInternalPersonality(audioResults[audioSocketIdA])
+                  }
+                })
+                if (room.hasPositiveResultForStep('audio')) {
+                  audioUser.updateSuccessMatchScore('audio')
+                } else {
+                  audioUser.updateFailMatchScore('audio')
+                }
+              }
+            })
+            room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
+            room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
+            if (room.hasPositiveResultForStep('audio')) {
+              timeout = setTimeout(function() {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_RESULT_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setStepTimeout(timeout)
+            } else {
+              room.setAsClosed()
+            }
+            this.setLastMatch(room, 'audio')
+            this.sockets.to('matches').emit('notification', this.getLastMatch())
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.warning('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO_SELECTION)
+          }
+          break
+
+        // VIDEO
+        case this.config.room.STATUS_AUDIO_RESULTS:
+          this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO)
+          if (room.getSocketIds().length > 1) {
+            room.setStatus(this.config.room.STATUS_VIDEO)
+            room.setVideo(true)
+            room.setTimer(this.config.room.WAIT_TIME_VIDEO_CONVERSATION)
+            timeout = setTimeout(function() {
+              that.updateStepTimeout(room)
+            }, (this.config.room.WAIT_TIME_VIDEO_CONVERSATION+this.config.room.NETWORK_RESPONSE_DELAY))
+            room.setStepTimeout(timeout)
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.warning('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_AUDIO_RESULTS)
+          }
+          break
+
+        // VIDEO SELECTION
+        case this.config.room.STATUS_VIDEO:
+          if (room.getSocketIds().length > 1) {
+            if (room.hasAcquiredAllVotes('video')) {
+              query = false
+              room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+              this.skipStepTimeout(room)
+            } else {
+              this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_SELECTION)
+              room.setStatus(that.config.room.STATUS_VIDEO_SELECTION)
+              room.setTimer(that.config.room.WAIT_TIME_SELECTION_SCREEN)
+              timeout = setTimeout(function () {
+                that.updateStepTimeout(room)
+              }, (this.config.room.WAIT_TIME_SELECTION_SCREEN+this.config.room.NETWORK_RESPONSE_DELAY))
+              room.setStepTimeout(timeout)
+            }
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.warning('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_VIDEO)
+          }
+          break
+
+        // VIDEO RESULT
+        case this.config.room.STATUS_VIDEO_SELECTION:
+          if (room.getSocketIds().length > 1) {
+            this.logger.info('[MATCH] ' + room.getName() + ' ' + this.config.room.STATUS_VIDEO_RESULTS)
+            //@NOTE Update Personality
+            let that        = this
+            let videoResults = room.getResultsForStep('video')
+            Object.keys(videoResults).forEach(function(videoSocketIdA) {
+              let videoUser = that.getUserBySocketId(videoSocketIdA)
+              if (videoUser) {
+                Object.keys(videoResults).forEach(function(videoSocketIdB) {
+                  if (videoSocketIdA == videoSocketIdB) {
+                    videoUser.updateExternalPersonality(videoResults[videoSocketIdA])
+                  } else {
+                    videoUser.updateInternalPersonality(videoResults[videoSocketIdA])
+                  }
+                })
+                if (room.hasPositiveResultForStep('video')) {
+                  videoUser.updateSuccessMatchScore('video')
+                } else {
+                  videoUser.updateFailMatchScore('video')
+                }
+              }
+            })
+            room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
+            room.setTimer(that.config.room.WAIT_TIME_RESULT_SCREEN)
+            if (room.hasPositiveResultForStep('video')) {
+              let users = []
+              socketIds.forEach(function(socketId) {
+                let user = this.getUserBySocketId(socketId)
+                if (user) {
+                  users.push(user)
+                }
+              })
+              users.forEach(function(user) {
+                if ('relationship' === room.getType()) {
+                  users.forEach(function(subuser) {
+                    user.addRelationship(subuser)
+                    user.socket.join(subuser.getId())
+                    if (user.socket) {
+                      user.socket.emit('query', subuser.query(false))
+                    }
+                  })
+                } else {
+                  users.forEach(function(subuser) {
+                    user.socket.join(subuser.getId())
+                    user.addFriendship(subuser)
+                    if (user.socket) {
+                      user.socket.emit('query', subuser.query(false))
+                    }
+                  })
+                }
+                user.socket.emit('query', user.query(true))
+              })
+            } else {
+              room.setAsClosed()
+            }
+            this.setLastMatch(room, 'video')
+            this.sockets.to('matches').emit('notification', this.getLastMatch())
+          } else {
+            room.setStatus(this.config.room.STATUS_TERMINATED)
+            this.logger.warning('[MATCH] ' + room.getName() + ' peer left during ' + this.config.room.STATUS_VIDEO_SELECTION)
+          }
+          break
+
+        default: break
+      }
+      if (true === query) {
+        this.sockets.to(room.getName()).emit('query', room.query())
+      }
     } catch (e) {
-      this.logger.error('[TIMER] Error', e)
+      this.logger.error('[MATCH] ' + room.getName() + ' ' + room.getStatus(), e)
     }
   }
 
@@ -433,6 +542,7 @@ class Api {
     try {
       socket.on('query', function(data) { that.query(data, socket) })
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
+      socket.on('call', function(data, callback) { that.ring(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
@@ -474,12 +584,12 @@ class Api {
         providers: {
           facebook: {
             url    : data.data.link,
-            picture: data.data.picture.data.url
+            picture: 'https://graph.facebook.com/'+data.data.id+'/picture?type=large&width=500&height=300'
           }
         },
         profile: {
           birthday: data.data.birthday,
-          picture : data.data.picture.data.url,
+          picture : 'https://graph.facebook.com/'+data.data.id+'/picture?type=large&width=500&height=300',
           astrological: {
             chinese   : Astrology.calculateChinese(data.data.birthday),
             zodiac    : Astrology.calculateZodiac(data.data.birthday),
@@ -536,6 +646,18 @@ class Api {
       this.bindSocketToPrivateEvents(socket)
       user.makeOnline()
       socket.emit('query', user.query(true))
+      let availabilityList = {}
+      let that = this
+      user.getContactList().forEach(function(userId) {
+        socket.join(userId)
+        let auser = that.getUserById(userId)
+        if (auser.isOnline()) {
+          availabilityList[userId] = 1
+        } else {
+          availabilityList[userId] = 0
+        }
+      })
+      socket.emit('availability', availabilityList)
       setTimeout(function() { user.pushOfflineMessages() }, 1000)
       this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser + ' as ' + this.connections + '/' + this.config.user.MAX_SOCKET_CONNECTIONS, socket.id)
     } catch (e) {
@@ -561,8 +683,15 @@ class Api {
             let room = this.getRoomByName(data.name)
             if (room) {
               info = room.query()
-            } else {
-              this.logger.error('[QUERY] ' + socket.id + ' does not have read access over ' + data.name)
+            }
+          }
+          break
+        case 'call':
+          let cuser = this.getUserBySocketId(socket.id)
+          if (cuser) {
+            let call = this.getCallByName(data.name)
+            if (call) {
+              info = call.query()
             }
           }
           break
@@ -575,6 +704,71 @@ class Api {
       }
     } catch (e) {
       this.logger.error('[QUERY] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  ring(data, socket, callback) {
+    try {
+      let user = this.getUserBySocketId(socket.id)
+      if (user) {
+        this.leave(socket)
+        let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
+        let callId    = data.id   || null
+        let called    = null
+        let call      = this.getCallByName(callName)
+        let joined    = true
+        let available = true
+        if (!data.name) {
+          called = this.getUserById(callId)
+          if (!called || false == called.isOnline() || !called.socket || called.socket.room) {
+            available = false
+          }
+        }
+        if (this.config.environment.name === 'production' && callId==User.generateId(this.config.bot.email)) {
+          available = false
+        }
+        if (true === available) {
+          //@NOTE When initiator hangs up before recipient says "accept"
+          if (call && call.getStatus() == this.config.call.STATUS_INACTIVE && data.name) {
+            call = new Call(this.config)
+            call.initialize(this.sockets, { status: this.config.call.STATUS_INACTIVE })
+            socket.emit('query', call.query())
+          } else {
+            if (!call) {
+              call = new Call(this.config)
+              let users = {}
+              users[socket.id] = user.getId()
+              call.initialize(this.sockets, {
+                name: callName,
+                initiator: user.getId(),
+                status: this.config.call.STATUS_WAITING,
+                users: users
+              })
+              joined = false
+            } else {
+              callName = call.getName()
+              call.data.users[socket.id] = user.getId()
+            }
+            socket.join(callName)
+            socket.room = callName
+            if (joined) {
+              this.logger.info('[CALL] Joined Call ' + callName)
+              call.setStatus(this.config.call.STATUS_ACTIVE)
+              callback(call.getSocketIds())
+            } else {
+              this.logger.info('[CALL] Created Call ' + callName)
+              this.addCall(call)
+              socket.to(called.socket.id).emit('query', call.query())
+            }
+          }
+        } else {
+          call = new Call(this.config)
+          call.initialize(this.sockets, { status: this.config.call.STATUS_BUSY })
+          socket.emit('query', call.query())
+        }
+      }
+    } catch (e) {
+      this.logger.error('[CALL] ' + JSON.stringify(data) + ' ' + e)
     }
   }
 
@@ -599,7 +793,7 @@ class Api {
                 callback(room.getSocketIds())
               }
             }
-            break;
+            break
 
           default:
           case 'match':
@@ -654,14 +848,13 @@ class Api {
               roomName = room.getName()
               room.data.users[socket.id] = user.getId()
             }
-
             socket.join(roomName)
             socket.room = roomName
             if (joined) {
               this.removeRoomFromQueue(room)
               this.logger.info('[JOIN] Joined Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               callback(room.getSocketIds())
-              this.runTimer(room)
+              this.updateStepTimeout(room)
             } else {
               this.logger.info('[JOIN] Created Room ' + roomName + ' having ' + roomType + ' ' + genderMatch + '/' + ageGroup)
               socket.emit('query', room.query())
@@ -683,16 +876,27 @@ class Api {
   leave(socket) {
     try {
       let roomName = socket.room
+      let entity   = 'room'
       if (roomName) {
-        socket.leave(roomName)
         socket.room = null
+        socket.leave(roomName)
         let room = this.getRoomByName(roomName)
         if (room) {
+          socket.leave(roomName)
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
+          if (false === room.isClosed()) {
+            this.updateStepTimeout(room)
+          }
+        }
+        let call = this.getCallByName(roomName)
+        if (call) {
+          entity = 'call'
+          call.setStatus(this.config.call.STATUS_INACTIVE)
+          this.removeCall(call)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
-        this.logger.info('[LEAVE] Left Room ' + roomName)
+        this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
       }
     } catch (e) {
       this.logger.error('[LEAVE] ' + e)
@@ -743,6 +947,24 @@ class Api {
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
               info = room.getName() + ' at ' + data.data.step + ' with ' + data.data.feeling
+              if (true === room.hasAcquiredAllVotes(data.data.step)) {
+                this.skipStepTimeout(room)
+              } else {
+                if (room._getFeelingScore(data.data.feeling) == -1) {
+                  let that = this
+                  room.getSocketIds().forEach(function(socketId) {
+                    if (socketId != socket.id) {
+                      let roomUser = that.getUserBySocketId(socketId)
+                      if (roomUser) {
+                        room.setResults(roomUser.socket, data.data.step, 'undecided')
+                        that.skipStepTimeout(room)
+                      }
+                    }
+                  })
+                } else {
+                  this.sockets.to(room.getName()).emit('query', room.query())
+                }
+              }
             }
           break
         case 'profile':
@@ -750,6 +972,7 @@ class Api {
           if (user) {
             user.initialize(socket, this.source, data.data)
             user.socket.emit('query', user.query(true))
+            user.socket.to(user.getId()).emit('query', user.query(false))
             info = 'of ' + user.getNickname()
             user.save()
           }
@@ -790,6 +1013,15 @@ class Api {
             info = blocked.getNickname() + ' requested by ' + blocker.getNickname()
             blocker.socket.emit('query', blocker.query(true))
             try { blocked.socket.emit('query', blocked.query(true)) } catch (e) {}
+          }
+          break
+        case 'call':
+          let callId = socket.room || data.id
+          let call = this.getCallByName(callId)
+          if (call) {
+            call.initialize(this.sockets, data.data)
+            call.io.to(call.getName()).emit('query', call.query())
+            info = 'of ' + call.getName()
           }
           break
         default:
