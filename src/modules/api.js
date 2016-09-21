@@ -502,7 +502,7 @@ class Api {
     try {
       socket.on('query', function(data) { that.query(data, socket) })
       socket.on('join', function(data, callback) { that.join(data, socket, callback) })
-      socket.on('call', function(data, callback) { that.call(data, socket, callback) })
+      socket.on('call', function(data, callback) { that.ring(data, socket, callback) })
       socket.on('leave', function(data) { that.leave(socket) })
       socket.on('update', function(data) { that.update(data, socket) })
       socket.on('exchange', function(data) { that.exchange(data, socket) })
@@ -667,7 +667,7 @@ class Api {
     }
   }
 
-  call(data, socket, callback) {
+  ring(data, socket, callback) {
     try {
 
       console.log('1')
