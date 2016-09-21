@@ -676,6 +676,7 @@ class Api {
       if (user) {
 
         console.log('2')
+        console.log(data)
 
         let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
         let callId    = data.id   || null
