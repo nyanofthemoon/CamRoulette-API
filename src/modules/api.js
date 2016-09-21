@@ -737,15 +737,15 @@ class Api {
             this.logger.info('[CALL] Joined Call ' + callName)
             call.setStatus(this.config.call.STATUS_ACTIVE)
             callback(call.getSocketIds())
-            setTimeout(function() { socket.to(callName).emit('query', call.query()) }, 1000)
+            socket.to(callName).emit('query', call.query())
 
           } else {
             console.log('9B')
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
-            socket.to(callName).emit('query', call.query())
+            socket.to(called.socket.id).emit('query', call.query())
+            socket.emit('query', call.query())
           }
-
 
           console.log('10')
 
