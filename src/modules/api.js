@@ -943,9 +943,6 @@ class Api {
       let info = null
       switch (data.type) {
         case 'match':
-
-          console.log('0')
-
             let room = this.getRoomByName(socket.room)
             if (room) {
               room.setResults(socket, data.data.step, data.data.feeling)
@@ -956,15 +953,10 @@ class Api {
                 if (room._getFeelingScore(data.data.feeling) == -1) {
                   let that = this
                   room.getSocketIds().forEach(function(socketId) {
-                    console.log('1')
                     if (socketId != socket.id) {
-                      console.log('2')
                       let roomUser = that.getUserBySocketId(socketId)
                       if (roomUser) {
-                        console.log('3')
-
                         room.setResults(roomUser.socket, data.data.step, 'undecided')
-                        console.log('4')
                         that.skipStepTimeout(room)
                       }
                     }
