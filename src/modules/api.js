@@ -829,6 +829,7 @@ class Api {
       let entity   = 'room'
       if (roomName) {
         socket.room = null
+        socket.leave(roomName)
         let room = this.getRoomByName(roomName)
         if (room) {
           socket.leave(roomName)
@@ -837,17 +838,14 @@ class Api {
           if (false === room.isClosed()) {
             this.updateStepTimeout(room)
           }
-          this.sockets.to(roomName).emit('leave', socket.id)
         }
         let call = this.getCallByName(roomName)
         if (call) {
           entity = 'call'
           call.setStatus(this.config.call.STATUS_INACTIVE)
-          this.sockets.to(roomName).emit('query', call.query())
-          socket.leave(roomName)
-          this.sockets.to(roomName).emit('leave', socket.id)
           this.removeCall(call)
         }
+        this.sockets.to(roomName).emit('leave', socket.id)
         this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
       }
     } catch (e) {
@@ -957,7 +955,7 @@ class Api {
         case 'call':
           let call = this.getCallByName(socket.room)
           if (call) {
-            call.initialize(socket, this.source, data.data)
+            call.initialize(this.source, data.data)
             call.io.to(call.getName()).emit('query', call.query())
             info = 'of ' + call.getName()
           }
