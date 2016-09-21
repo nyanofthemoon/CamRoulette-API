@@ -176,7 +176,7 @@ class Api {
   }
 
   addCall(call) {
-    this.data.calls[call.getId()] = call
+    this.data.calls[call.getName()] = call
   }
 
   addRoom(room) {
