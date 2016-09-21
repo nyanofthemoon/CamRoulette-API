@@ -711,14 +711,7 @@ class Api {
             if (joined) {
               this.logger.info('[CALL] Joined Call ' + callName)
               call.setStatus(this.config.call.STATUS_ACTIVE)
-
-
-              let test = this.getUserById(call.data.initiator)
-              callback([test.socket.id])
-              //callback(call.getSocketIds())
-
-
-
+              callback(call.getSocketIds())
             } else {
               this.logger.info('[CALL] Created Call ' + callName)
               this.addCall(call)
