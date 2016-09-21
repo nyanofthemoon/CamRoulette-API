@@ -950,7 +950,16 @@ class Api {
               if (true === room.hasAcquiredAllVotes(data.data.step)) {
                 this.skipStepTimeout(room)
               } else {
-                this.sockets.to(room.getName()).emit('query', room.query())
+                if (room._getFeelingScore(data.data.feeling) == -1) {
+                  room.getSockets().forEach(function(roomSocket) {
+                    if (roomSocket.id != socket.id) {
+                      room.setResults(roomSocket, data.data.step, 'undecided')
+                    }
+                  })
+                  this.skipStepTimeout(room)
+                } else {
+                  this.sockets.to(room.getName()).emit('query', room.query())
+                }
               }
             }
           break
