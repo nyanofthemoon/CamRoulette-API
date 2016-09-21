@@ -737,17 +737,13 @@ class Api {
             this.logger.info('[CALL] Joined Call ' + callName)
             call.setStatus(this.config.call.STATUS_ACTIVE)
             callback(call.getSocketIds())
+            setTimeout(function() { socket.to(callName).emit('query', call.query()) }, 1000)
 
           } else {
-
             console.log('9B')
-
             this.logger.info('[CALL] Created Call ' + callName)
             this.addCall(call)
-
-            console.log(call.query())
-
-            socket.to(called.socket.id).emit('query', call.query())
+            socket.to(callName).emit('query', call.query())
           }
 
 
@@ -759,9 +755,7 @@ class Api {
           console.log('BUSY 1')
 
           call = new Call(this.config)
-          call.initialize(this.sockets, {
-            status: this.config.call.STATUS_BUSY
-          })
+          call.initialize(this.sockets, { status: this.config.call.STATUS_BUSY })
           socket.emit('query', call.query())
 
           console.log('BUSY 2')
