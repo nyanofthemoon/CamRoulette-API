@@ -679,7 +679,7 @@ class Api {
 
         let callName  = data.name || 'call_' + socket.id + '/' + Math.floor((Math.random() * 999999))
         let callId    = data.id   || null
-        let called     null
+        let called    = null
         let call      = this.getCallByName(callName)
         let joined    = true
         let available = true
