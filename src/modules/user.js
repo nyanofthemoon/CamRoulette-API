@@ -55,6 +55,16 @@ class User {
           element   : null
         }
       },
+      match: {
+        audio: {
+          success: 0,
+          fail   : 0
+        },
+        video: {
+          success: 0,
+          fail   : 0
+        }
+      },
       personality: {
         // http://www.livescience.com/41313-personality-traits.html
         // @NOTE Votes User Gave
@@ -349,6 +359,14 @@ class User {
         delete(that.data.offlineMessages[i])
       })
     }
+  }
+
+  updateSuccessMatchScore(type) {
+    this.data.match[type].success = this.data.match[type].success + 1
+  }
+
+  updateFailMatchScore(type) {
+    this.data.match[type].fail = this.data.match[type].fail + 1
   }
 
   updateInternalPersonality(feeling) {

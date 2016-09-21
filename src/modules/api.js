@@ -387,6 +387,11 @@ class Api {
                     audioUser.updateInternalPersonality(audioResults[audioSocketIdA])
                   }
                 })
+                if (room.hasPositiveResultForStep('audio')) {
+                  audioUser.updateSuccessMatchScore('audio')
+                } else {
+                  audioUser.updateFailMatchScore('audio')
+                }
               }
             })
             room.setStatus(that.config.room.STATUS_AUDIO_RESULTS)
@@ -463,6 +468,11 @@ class Api {
                     videoUser.updateInternalPersonality(videoResults[videoSocketIdA])
                   }
                 })
+                if (room.hasPositiveResultForStep('video')) {
+                  videoUser.updateSuccessMatchScore('video')
+                } else {
+                  videoUser.updateFailMatchScore('video')
+                }
               }
             })
             room.setStatus(that.config.room.STATUS_VIDEO_RESULTS)
