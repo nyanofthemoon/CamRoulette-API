@@ -708,7 +708,7 @@ class Api {
             let users = {}
             users[socket.id] = user.getId()
             call.initialize(this.sockets, {
-              name: name,
+              name: callName,
               status: this.config.call.STATUS_WAITING,
               users: users
             })
