@@ -100,6 +100,7 @@ class Api {
           clientOne.on('message', function (channel, message) {
             try {
               message = JSON.parse(message)
+              api.logger.info('Notification received from ' + channel, message)
               switch (channel) {
                 case 'system':
                   switch (message.type) {
@@ -121,7 +122,6 @@ class Api {
                 default:
                   break
               }
-              api.logger.info('Notification received from ' + channel, message)
             } catch (e) {
               api.logger.error('Notification error from ' + channel + ' with ' + message, e)
             }
@@ -614,7 +614,6 @@ class Api {
           orientation: 'O',
           friendship : 'A',
           agegroup   : 'no',
-          picture    : data.data.picture.data.url,
           astrological: {
             chinese   : Astrology.calculateChinese(data.data.birthday),
             zodiac    : Astrology.calculateZodiac(data.data.birthday),
@@ -1059,6 +1058,7 @@ class Api {
     try {
       let user = this.getUserBySocketId(socket.id)
       if (user) {
+        user.makeOffline()
         let that     = this
         let contacts = user.getContactList()
         contacts.forEach(function(contactUserId) {
