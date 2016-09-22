@@ -171,6 +171,10 @@ class Api {
     }
   }
 
+  removeUser(user) {
+    delete(this.data.users[user.getId()])
+  }
+
   getUsers() {
     return this.data.users || {}
   }
@@ -549,6 +553,7 @@ class Api {
       socket.on('message', function(data) { that.message(data, socket) })
       socket.on('subscribe', function(data) { that.subscribe(data, socket) })
       socket.on('unsubscribe', function(data) { that.unsubscribe(data, socket) })
+      socket.on('delete', function(data) { that.deleteme(socket) })
       this.logger.verbose('Socket ' + socket.id + ' bound to private events')
     } catch (e) {
       this.logger.error('Socket ' + socket.id + ' not bound to private events ', e)
@@ -876,13 +881,12 @@ class Api {
   leave(socket) {
     try {
       let roomName = socket.room
-      let entity   = 'room'
       if (roomName) {
+        let entity  = 'Room'
         socket.room = null
         socket.leave(roomName)
         let room = this.getRoomByName(roomName)
         if (room) {
-          socket.leave(roomName)
           this.removeRoomFromAssoc(room)
           this.removeRoomFromQueue(room)
           if (false === room.isClosed()) {
@@ -891,12 +895,11 @@ class Api {
         }
         let call = this.getCallByName(roomName)
         if (call) {
-          entity = 'call'
-          call.setStatus(this.config.call.STATUS_INACTIVE)
+          entity = 'Call'
           this.removeCall(call)
         }
         this.sockets.to(roomName).emit('leave', socket.id)
-        this.logger.info('[LEAVE] Left ' + entity + ' ' + roomName)
+        this.logger.info('[LEAVE] ' + entity + ' ' + roomName)
       }
     } catch (e) {
       this.logger.error('[LEAVE] ' + e)
@@ -1048,6 +1051,28 @@ class Api {
       socket.leave(data.room)
     } catch (e) {
       this.logger.error('An unknown socket error has occured', e)
+    }
+  }
+
+  deleteme(socket) {
+    try {
+      let user = this.getUserBySocketId(socket.id)
+      if (user) {
+        let that     = this
+        let contacts = user.getContactList()
+        contacts.forEach(function(contactUserId) {
+          let contact = that.getUserById(contactUserId)
+          if (contact) {
+            contact.removeUserReferences(user)
+            contact.save()
+          }
+        })
+        user.erase()
+        this.removeUser(user)
+        this.logger.info('[DELETE] Permanent deletion requested by ' + user.getNickname() + ' ' + user.getId())
+      }
+    } catch (e) {
+      this.logger.error('[DELETE] Permanent deletion failed ' + e)
     }
   }
 

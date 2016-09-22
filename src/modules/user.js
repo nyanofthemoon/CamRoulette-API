@@ -169,6 +169,12 @@ class User {
     return this.source.hsetAsync('user', this.getId(), JSON.stringify(this.data))
   }
 
+  // Returns a promise
+  erase() {
+    this.logger.info('Deleting user ' + this.getId())
+    return this.source.hdelAsync('user', this.getId())
+  }
+
   getNickname() {
     return this.data.profile.nickname
   }
@@ -223,6 +229,13 @@ class User {
 
   removeRelationship(user) {
     delete(this.data.contacts.relationship[user.getId()])
+  }
+
+  removeUserReferences(user) {
+    let userId = user.getId()
+    delete(this.data.contacts.friendship[userId])
+    delete(this.data.contacts.relationship[userId])
+    delete(this.data.contacts.blocked[userId])
   }
 
   blockUser(user) {

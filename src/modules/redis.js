@@ -1,5 +1,7 @@
 'use strict'
 
+// https://gist.github.com/leommoore/4704080
+
 let Bluebird = require('bluebird')
 let redis = require('redis')
 let Logger = require('./../modules/logger')
