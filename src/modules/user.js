@@ -28,6 +28,7 @@ class User {
       email    : null,
       firstname: null,
       lastname : null,
+      last     : null,
       providers: {
         facebook: {
           url    : null,
@@ -132,6 +133,10 @@ class User {
 
   static generateId(email) {
     return MD5(email).toString()
+  }
+
+  updateLastSeen() {
+    this.data.last = new Date().getTime()
   }
 
   getId() {

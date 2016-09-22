@@ -630,6 +630,7 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
+      user.updateLastSeen()
       let botId = User.generateId(this.config.bot.email)
       if (true === newUser && user.getId() != botId) {
         // @Everyone Is On Bot List
