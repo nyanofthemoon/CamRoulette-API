@@ -152,8 +152,8 @@ class User {
   }
 
   makeOnline() {
+    this.online = true
     if (this.socket) {
-      this.online = true
       let data = {};
       data[this.getId()] = 1
       this.socket.to(this.getId()).emit('availability', data)
@@ -161,8 +161,8 @@ class User {
   }
 
   makeOffline() {
+    this.online = false
     if (this.socket) {
-      this.online = false
       let data = {}; data[this.getId()] = 0
       this.socket.to(this.getId()).emit('availability', data)
     }
