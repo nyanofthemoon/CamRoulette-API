@@ -578,6 +578,7 @@ class Api {
         newUser = true
       }
       let userData = {
+        email: data.data.email || data.data.id + '@facebook.com',
         location: {
           locale   : data.data.locale,
           timezone : data.data.timezone,
@@ -588,6 +589,7 @@ class Api {
         },
         providers: {
           facebook: {
+            id     : data.data.id,
             url    : data.data.link,
             picture: 'https://graph.facebook.com/'+data.data.id+'/picture?type=large&width=500&height=300'
           }
@@ -605,7 +607,6 @@ class Api {
         }
       }
       if (true === newUser) {
-        userData.email     = data.data.email
         userData.firstname = data.data.first_name
         userData.lastname  = data.data.last_name
         userData.profile = {
