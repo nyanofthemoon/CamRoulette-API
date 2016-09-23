@@ -240,7 +240,6 @@ class User {
     let userId = user.getId()
     delete(this.data.contacts.friendship[userId])
     delete(this.data.contacts.relationship[userId])
-    delete(this.data.contacts.blocked[userId])
   }
 
   blockUser(user) {
