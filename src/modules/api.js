@@ -1006,7 +1006,7 @@ class Api {
             }
             reporter.reportUser(reported)
             reporter.socket.emit('query', reporter.query(true))
-            try { reported.socket.emit('query', reporter.query(true)) } catch (e) {}
+            try { reported.socket.emit('query', reported.query(true)) } catch (e) {}
           }
           break
         case 'block':
