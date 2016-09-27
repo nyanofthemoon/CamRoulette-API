@@ -2,18 +2,32 @@
 
 const CONFIG = require('./../config')
 
+let options = {
+  dotfiles  : 'ignore',
+  etag      : false,
+  extensions: ['htm', 'html'],
+  index     : 'index.html',
+  maxAge    : '1d',
+  redirect  : false,
+  setHeaders: function (res, path, stat) {
+    res.set('x-timestamp', Date.now())
+  }
+}
+
 let server
 var express = require('express')
 var app = express()
 app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
+  res.header('Access-Control-Allow-Origin', '*')
+  next()
 })
-if ('development' === CONFIG.environment.name) {
-  app.get('/', function(req, res){
-    res.sendFile(__dirname + '/public/index.html');
-  });
-}
+
+app.use('/assets',  express.static('public', options))
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/public/index.html')
+})
+
 var http = require('http')
 server = http.createServer(app)
 

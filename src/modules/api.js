@@ -569,6 +569,70 @@ class Api {
   }
 
   login(data, socket) {
+    if ('facebook' === data.data.provider) {
+      this._loginWithFacebook(data, socket)
+    } else {
+      this._loginWithPlush(data, socket)
+    }
+  }
+
+  _loginWithPlush(data, socket) {
+    try {
+      let userId  = User.generateId(data.data.email)
+      let user    = this.getUserById(userId)
+
+      if (user && user.data.provider === 'plush') {
+        if (user.data.password === data.data.password) {
+          user.initialize(socket, this.source, {})
+          this._completeLogin(socket, user, false)
+        }
+      } else if (data.data.gender && data.data.birthday) {
+        let userData = {
+          email    : data.data.email,
+          password : data.data.password,
+          firstname: data.data.first_name,
+          lastname : data.data.last_name,
+          provider : 'plush',
+          location: {
+            city     : data.data.city,
+            country  : data.data.country,
+            latitude : data.data.latitude,
+            longitude: data.data.longitude
+          },
+          providers: {
+            plush: {
+              id     : data.data.email,
+              picture: 'https://plush.hotchiwawa.com/assets/images/placeholder.png'
+            }
+          },
+          profile: {
+            nickname: data.data.first_name,
+            gender  : data.data.gender,
+            birthday: data.data.birthday,
+            orientation: 'O',
+            friendship : 'A',
+            agegroup   : 'no',
+            picture : 'https://plush.hotchiwawa.com/assets/images/placeholder.png',
+            astrological: {
+              chinese   : Astrology.calculateChinese(data.data.birthday),
+              zodiac    : Astrology.calculateZodiac(data.data.birthday),
+              birthstone: Astrology.calculateBirthstone(data.data.birthday),
+              planet    : Astrology.calculatePlanet(data.data.birthday),
+              element   : Astrology.calculateElement(data.data.birthday)
+            }
+          }
+        }
+        user = new User(this.config)
+        user.initialize(socket, this.source, userData)
+        this.logger.info('[PROVIDER PLUSH] Created user ' + user.getNickname() + ' ' + user.getAge())
+        this._completeLogin(socket, user, true)
+      }
+    } catch (e) {
+      this.logger.error('[PROVIDER PLUSH] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  _loginWithFacebook(data, socket) {
     try {
       let userId  = User.generateId(data.data.email)
       let user    = this.getUserById(userId)
@@ -607,6 +671,7 @@ class Api {
         }
       }
       if (true === newUser) {
+        userData.provider  = 'facebook'
         userData.firstname = data.data.first_name
         userData.lastname  = data.data.last_name
         userData.profile = {
@@ -630,7 +695,17 @@ class Api {
         }
       }
       user.initialize(socket, this.source, userData)
-      user.updateLastSeen()
+      if (true === newUser) {
+        this.logger.info('[PROVIDER FACEBOOK] Created user ' + user.getNickname() + ' ' + user.getAge())
+      }
+      this._completeLogin(socket, user, newUser)
+    } catch (e) {
+      this.logger.error('[PROVIDER FACEBOOK] ' + JSON.stringify(data) + ' ' + e)
+    }
+  }
+
+  _completeLogin(socket, user, newUser) {
+    try {
       let botId = User.generateId(this.config.bot.email)
       if (true === newUser && user.getId() != botId) {
         // @Everyone Is On Bot List
@@ -647,6 +722,7 @@ class Api {
         }
         user.save()
       }
+      user.updateLastSeen()
       this.addSession(socket, user)
       this.addUser(user)
       this.bindSocketToPrivateEvents(socket)
@@ -665,7 +741,7 @@ class Api {
       })
       socket.emit('availability', availabilityList)
       setTimeout(function() { user.pushOfflineMessages() }, 1000)
-      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' with newUser=' + newUser + ' as ' + this.connections + '/' + this.config.user.MAX_SOCKET_CONNECTIONS, socket.id)
+      this.logger.info('[LOGIN] ' + user.getNickname() + '@' + user.getSocketId() + ' using provider ' + user.data.provider + ' as ' + this.connections + '/' + this.config.user.MAX_SOCKET_CONNECTIONS, socket.id)
     } catch (e) {
       this.logger.error('[LOGIN] ' + JSON.stringify(data) + ' ' + e)
     }

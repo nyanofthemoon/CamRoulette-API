@@ -29,12 +29,9 @@ class User {
       firstname: null,
       lastname : null,
       last     : null,
-      providers: {
-        facebook: {
-          url    : null,
-          picture: null
-        }
-      },
+      provider : null,
+      password : null,
+      providers: {},
       profile: {
         nickname   : null,
         gender     : null,
@@ -403,8 +400,10 @@ class User {
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
+    delete(struct.data.password)
     delete(struct.data.offlineMessages)
     if (false === self) {
+      delete(struct.data.provider)
       delete(struct.data.providers)
       delete(struct.data.contacts)
       delete(struct.data.reports)
