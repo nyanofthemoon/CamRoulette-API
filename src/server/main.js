@@ -22,7 +22,7 @@ app.use(function(req, res, next) {
   next()
 })
 
-app.use('/assets',  express.static('public', options))
+app.use('/assets',  express.static(__dirname + '/public', options))
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html')
