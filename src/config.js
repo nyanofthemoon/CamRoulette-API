@@ -41,7 +41,7 @@ module.exports = {
 
   bot: {
     email  : process.env.PLUSH_BOT_EMAIL   || 'paule.lepage@gmail.com',
-    message: process.env.PLUSH_BOT_MESSAGE || 'Hi. Thanks for trying Plush! We are in Beta right now. If you notice anything strange, please let me know. :)',
+    message: process.env.PLUSH_BOT_MESSAGE || 'Welcome to Plush! Notice anything strange or have a suggestion? Message me or email hello@hotchiwawa.com :)',
   },
 
   user: {

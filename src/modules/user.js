@@ -28,12 +28,10 @@ class User {
       email    : null,
       firstname: null,
       lastname : null,
-      providers: {
-        facebook: {
-          url    : null,
-          picture: null
-        }
-      },
+      last     : null,
+      provider : null,
+      password : null,
+      providers: {},
       profile: {
         nickname   : null,
         gender     : null,
@@ -134,6 +132,10 @@ class User {
     return MD5(email).toString()
   }
 
+  updateLastSeen() {
+    this.data.last = new Date().getTime()
+  }
+
   getId() {
     return this.data.id
   }
@@ -147,8 +149,8 @@ class User {
   }
 
   makeOnline() {
+    this.online = true
     if (this.socket) {
-      this.online = true
       let data = {};
       data[this.getId()] = 1
       this.socket.to(this.getId()).emit('availability', data)
@@ -156,8 +158,8 @@ class User {
   }
 
   makeOffline() {
+    this.online = false
     if (this.socket) {
-      this.online = false
       let data = {}; data[this.getId()] = 0
       this.socket.to(this.getId()).emit('availability', data)
     }
@@ -167,6 +169,12 @@ class User {
   save() {
     this.logger.info('Saving user ' + this.getId())
     return this.source.hsetAsync('user', this.getId(), JSON.stringify(this.data))
+  }
+
+  // Returns a promise
+  erase() {
+    this.logger.info('Deleting user ' + this.getId())
+    return this.source.hdelAsync('user', this.getId())
   }
 
   getNickname() {
@@ -223,6 +231,12 @@ class User {
 
   removeRelationship(user) {
     delete(this.data.contacts.relationship[user.getId()])
+  }
+
+  removeUserReferences(user) {
+    let userId = user.getId()
+    delete(this.data.contacts.friendship[userId])
+    delete(this.data.contacts.relationship[userId])
   }
 
   blockUser(user) {
@@ -386,8 +400,10 @@ class User {
     delete(struct.data.email)
     delete(struct.data.firstname)
     delete(struct.data.lastname)
+    delete(struct.data.password)
     delete(struct.data.offlineMessages)
     if (false === self) {
+      delete(struct.data.provider)
       delete(struct.data.providers)
       delete(struct.data.contacts)
       delete(struct.data.reports)
