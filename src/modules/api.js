@@ -674,24 +674,22 @@ class Api {
         userData.provider  = 'facebook'
         userData.firstname = data.data.first_name
         userData.lastname  = data.data.last_name
-        userData.profile = {
-          nickname   : data.data.first_name,
-          birthday   : data.data.birthday,
-          orientation: 'O',
-          friendship : 'A',
-          agegroup   : 'no',
-          astrological: {
-            chinese   : Astrology.calculateChinese(data.data.birthday),
-            zodiac    : Astrology.calculateZodiac(data.data.birthday),
-            birthstone: Astrology.calculateBirthstone(data.data.birthday),
-            planet    : Astrology.calculatePlanet(data.data.birthday),
-            element   : Astrology.calculateElement(data.data.birthday)
-          }
-        }
         if ('male' === data.data.gender) {
           userData.profile.gender = 'M'
         } else {
           userData.profile.gender = 'F'
+        }
+        userData.profile.nickname    = data.data.first_name
+        userData.profile.birthday    = data.data.birthday
+        userData.profile.orientation = 'O'
+        userData.profile.friendship  = 'A'
+        userData.profile.agegroup    = 'no'
+        userData.profile.astrological= {
+          chinese   : Astrology.calculateChinese(data.data.birthday),
+          zodiac    : Astrology.calculateZodiac(data.data.birthday),
+          birthstone: Astrology.calculateBirthstone(data.data.birthday),
+          planet    : Astrology.calculatePlanet(data.data.birthday),
+          element   : Astrology.calculateElement(data.data.birthday)
         }
       }
       user.initialize(socket, this.source, userData)
